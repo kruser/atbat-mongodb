@@ -6,6 +6,7 @@
 #
 use strict;
 use Kruser::MLB::AtBat;
+use Kruser::MLB::Storage;
 use Config::Properties;
 use Log::Log4perl;
 use Data::Dumper;
@@ -22,8 +23,15 @@ my $logger = Log::Log4perl->get_logger("atbatETL");
 ##
 load_options();
 load_properties();
-$logger->info("Starting MLB ETL");
-print Dumper($properties);
+my $storage = Kruser::MLB::Storage->new(
+	dbName => $properties->getProperty('db.name'),
+	dbHost => $properties->getProperty('db.host')
+);
+my $atbat = Kruser::MLB::AtBat->new(
+	storage => \$storage,
+	apibase => $properties->getProperty('apibase')
+);
+$atbat->initiate_sync();
 
 ##
 # loads the properties from the script configuration file
@@ -36,7 +44,8 @@ sub load_properties()
 		$logger->error("The config file '$configFile' does not exist");
 	}
 
-	open PROPS, "< $configFile"
+	open PROPS,
+	  "< $configFile"
 	  or die "Unable to open configuration file $configFile";
 	$properties = new Config::Properties();
 	$properties->load(*PROPS);

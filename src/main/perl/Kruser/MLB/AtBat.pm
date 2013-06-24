@@ -22,7 +22,7 @@ sub new
 	my $package = ref($proto) || $proto;
 
 	my $this = { 
-		appServer => undef, 
+		apibase => undef, 
 		storage => undef, 
 	};
 
@@ -42,6 +42,7 @@ sub new
 sub initiate_sync
 {
 	my $this = shift;
+	$logger->info("Starting MLB ETL");
 }
 
 1;
