@@ -11,6 +11,8 @@ use LWP;
 use Log::Log4perl;
 use XML::Simple;
 use Data::Dumper;
+use Date::Parse;
+use DateTime;
 
 my $browser = LWP::UserAgent->new( ssl_opts => { verify_hostname => 0 } );
 my $logger  = Log::Log4perl->get_logger("Kruser::MLB::AtBat");
@@ -96,25 +98,25 @@ sub retrieve_day
 	my $year  = shift;
 	my $month = shift;
 	my $day   = shift;
-	
+
 	# format the short strings for the URL
 	$month = '0' . $month if $month < 10;
 	$day   = '0' . $day   if $day < 10;
-	
+
 	my $dayUrl = $this->{apibase} . "/year_$year/month_$month/day_$day";
-	
+
 	$logger->info("Retrieving data for $year-$month-$day.");
 
-	my @games = $this->_get_games_for_day( $dayUrl );
+	my @games = $this->_get_games_for_day($dayUrl);
 	foreach my $game (@games)
 	{
 		my $gameId = $game->{gameday};
-		my $url = $this->{apibase} . "/year_$year/month_$month/day_$day/epg.xml";
-		
+		my $url    = $this->{apibase} . "/year_$year/month_$month/day_$day/epg.xml";
+
 		my $inningsUrl = "$dayUrl/gid_$gameId/inning/inning_all.xml";
 		$logger->debug("Getting at-bat details from $inningsUrl");
 		my $inngingsObj = _get_xml_page_as_obj($inningsUrl);
-		
+
 		my $gameRosterUrl = "$dayUrl/gid_$gameId/players.xml";
 		$logger->debug("Getting game roster details from $gameRosterUrl");
 		my $gameRosterObj = _get_xml_page_as_obj($gameRosterUrl);
@@ -126,21 +128,45 @@ sub retrieve_day
 ##
 sub _get_games_for_day
 {
-	my $this  = shift;
-	my $dayUrl   = shift;
+	my $this   = shift;
+	my $dayUrl = shift;
 
 	my $url = "$dayUrl/epg.xml";
 	$logger->debug("Getting gameday lists from $url");
-	my $gamesObj = _get_xml_page_as_obj($url);
+	my $gamesObj = $this->_get_xml_page_as_obj($url);
+	$this->_cleanup_games( \@{ $gamesObj->{game} } );
 	if ( $gamesObj->{game} )
 	{
-		$this->{storage}->save_games( \@{$gamesObj->{game}});
+		$this->{storage}->save_games( \@{ $gamesObj->{game} } );
 	}
 	else
 	{
 		$logger->error("Unable to find any games listed at $url");
 	}
-	return @{$gamesObj->{game}};
+	return @{ $gamesObj->{game} };
+}
+
+##
+# cleanup the data within the games
+##
+sub _cleanup_games
+{
+	my $this  = shift;
+	my $games = shift;
+
+	foreach my $game ( @{$games} )
+	{
+		if ( $game->{game_media} )
+		{
+			undef( $game->{game_media} );
+		}
+		if ( $game->{start} )
+		{
+			$game->{start} = DateTime->from_epoch( epoch => str2time( $game->{start} ) );
+		}
+	}
+
+	print Dumper($games);
 }
 
 ##
@@ -150,11 +176,11 @@ sub _get_games_for_day
 sub _get_xml_page_as_obj
 {
 	my $this = shift;
-	my $url = shift;
-	
+	my $url  = shift;
+
 	my $response = $browser->get($url);
-	my $content = $response->content();
-	my $objs = XMLin( $content, KeyAttr => {});
+	my $content  = $response->content();
+	my $objs     = XMLin( $content, KeyAttr => {} );
 	return $objs;
 }
 

@@ -36,6 +36,7 @@ sub new
 	}
 
 	$mongoClient = MongoDB::MongoClient->new;
+	$mongoClient->dt_type( 'DateTime::Tiny' );
 	$mongoDB     = $mongoClient->get_database( $this->{dbName} );
 
 	bless( $this, $package );
