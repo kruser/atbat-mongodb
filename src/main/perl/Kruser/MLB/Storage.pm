@@ -44,29 +44,18 @@ sub new
 }
 
 ##
-# Save game rosters
+# Save a game and its rosters
 #
-# @param games array
+# @param game - the game object
 ##
-sub save_games
+sub save_game
 {
 	my $this           = shift;
-	my $games          = shift;
+	my $game          = shift;
 	my $collectionName = 'games';
 
 	my $gamesCollection = $mongoDB->get_collection($collectionName);
-	my @ids = $gamesCollection->batch_insert(\@$games);
-
-	my $originalGamesLength = @$games;
-	my $idLength            = @ids;
-	if ( $idLength == $originalGamesLength )
-	{
-		$logger->info("Saved $idLength games to the '$collectionName' table");
-	}
-	else
-	{
-		$logger->error("Failed saving '$originalGamesLength' games to the database. Only $idLength succeeded");
-	}
+	$gamesCollection->insert($game);
 }
 
 ##

@@ -115,11 +115,14 @@ sub retrieve_day
 
 		my $inningsUrl = "$dayUrl/gid_$gameId/inning/inning_all.xml";
 		$logger->debug("Getting at-bat details from $inningsUrl");
-		my $inngingsObj = _get_xml_page_as_obj($inningsUrl);
+		my $inngingsObj = $this->_get_xml_page_as_obj($inningsUrl);
 
 		my $gameRosterUrl = "$dayUrl/gid_$gameId/players.xml";
 		$logger->debug("Getting game roster details from $gameRosterUrl");
-		my $gameRosterObj = _get_xml_page_as_obj($gameRosterUrl);
+		my $gameRosterObj = $this->_get_xml_page_as_obj($gameRosterUrl);
+		
+		$game->{team} = $gameRosterObj->{team};
+		$this->{storage}->save_game($game);
 	}
 }
 
@@ -135,14 +138,6 @@ sub _get_games_for_day
 	$logger->debug("Getting gameday lists from $url");
 	my $gamesObj = $this->_get_xml_page_as_obj($url);
 	$this->_cleanup_games( \@{ $gamesObj->{game} } );
-	if ( $gamesObj->{game} )
-	{
-		$this->{storage}->save_games( \@{ $gamesObj->{game} } );
-	}
-	else
-	{
-		$logger->error("Unable to find any games listed at $url");
-	}
 	return @{ $gamesObj->{game} };
 }
 
