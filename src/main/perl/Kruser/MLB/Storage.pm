@@ -24,7 +24,6 @@ sub new
 {
 	my ( $proto, %params ) = @_;
 	my $package = ref($proto) || $proto;
-
 	my $this = {
 		dbName => undef,
 		dbHost => 'localhost'
@@ -36,8 +35,8 @@ sub new
 	}
 
 	$mongoClient = MongoDB::MongoClient->new;
-	$mongoClient->dt_type( 'DateTime::Tiny' );
-	$mongoDB     = $mongoClient->get_database( $this->{dbName} );
+	$mongoClient->dt_type('DateTime::Tiny');
+	$mongoDB = $mongoClient->get_database( $this->{dbName} );
 
 	bless( $this, $package );
 	return $this;
@@ -51,11 +50,30 @@ sub new
 sub save_game
 {
 	my $this           = shift;
-	my $game          = shift;
+	my $game           = shift;
 	my $collectionName = 'games';
 
 	my $gamesCollection = $mongoDB->get_collection($collectionName);
 	$gamesCollection->insert($game);
+}
+
+##
+# Saves an array of at-bats
+#
+# @param {Object[]} atbats
+##
+sub save_at_bats
+{
+	my $this   = shift;
+	my $atbats = shift;
+	
+	my $collectionName = 'atbats';
+
+	my $collection = $mongoDB->get_collection($collectionName);
+	my @ids = $collection->batch_insert(\@{$atbats});	
+	
+	my $length = @ids;
+	$logger->debug("Saved $length at bats to the '$collectionName' collection");
 }
 
 ##
