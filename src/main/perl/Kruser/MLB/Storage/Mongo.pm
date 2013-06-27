@@ -77,6 +77,25 @@ sub save_at_bats
 }
 
 ##
+# Saves an array of pitches
+#
+# @param {Object[]} pitches
+##
+sub save_pitches
+{
+	my $this   = shift;
+	my $pitches = shift;
+	
+	my $collectionName = 'pitches';
+
+	my $collection = $mongoDB->get_collection($collectionName);
+	my @ids = $collection->batch_insert(\@{$pitches});	
+	
+	my $length = @ids;
+	$logger->debug("Saved $length pitches to the '$collectionName' collection");
+}
+
+##
 # Saves an array of innings
 #
 # @param innings array

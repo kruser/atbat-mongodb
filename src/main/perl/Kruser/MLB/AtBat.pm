@@ -13,6 +13,7 @@ use XML::Simple;
 use Data::Dumper;
 use Date::Parse;
 use DateTime;
+use Storable 'dclone';
 
 my $browser = LWP::UserAgent->new( ssl_opts => { verify_hostname => 0 } );
 my $logger  = Log::Log4perl->get_logger("Kruser::MLB::AtBat");
@@ -123,10 +124,12 @@ sub retrieve_day
 
 		my $inningsUrl = "$dayUrl/gid_$gameId/inning/inning_all.xml";
 		$logger->debug("Getting at-bat details from $inningsUrl");
-		my $inningsObj = $this->_get_xml_page_as_obj($inningsUrl);
-
-		$this->_save_at_bats( $inningsObj, $shallowGameInfo );
-		$this->_save_pitches( $inningsObj, $shallowGameInfo );
+		my $inningsXml = $this->_get_xml_page($inningsUrl);
+		if ($inningsXml)
+		{
+			$this->_save_at_bats( XMLin( $inningsXml, KeyAttr => {} ), $shallowGameInfo );
+			$this->_save_pitches( XMLin( $inningsXml, KeyAttr => {} ), $shallowGameInfo );
+		}
 
 		my $gameRosterUrl = "$dayUrl/gid_$gameId/players.xml";
 		$logger->debug("Getting game roster details from $gameRosterUrl");
@@ -145,14 +148,83 @@ sub retrieve_day
 # pitch as their own object in the database, embedding game and inning info
 # along the way
 #
+# TODO: I'm sure this could be refactored with <code>_save_at_bats</code> to reduce
+# a little code redundancy.
+#
 # @param innings - the object representing all innings
 # @param shallowGame - the shallow game data that we'll embed in each pitch
-## 
+# @private
+##
 sub _save_pitches
 {
 	my $this            = shift;
 	my $inningsObj      = shift;
 	my $shallowGameInfo = shift;
+
+	if ($inningsObj)
+	{
+		foreach my $inning ( @{ $inningsObj->{inning} } )
+		{
+			if ( $inning->{top} )
+			{
+				my @atbats = @{ $inning->{top}->{atbat} };
+				foreach my $atbat (@atbats)
+				{
+					$atbat->{'batter_team'}    = $inning->{'away_team'};
+					$atbat->{'pitcher_team'}   = $inning->{'home_team'};
+					$atbat->{'start_tfs_zulu'} =
+					  DateTime->from_epoch( epoch => str2time( $atbat->{'start_tfs_zulu'} ) );
+
+					my $shallowAtBat = dclone($atbat);
+					undef $shallowAtBat->{'pitch'};
+
+					if ( $atbat->{pitch} )
+					{
+						my @pitches = @{ $atbat->{pitch} };
+						foreach my $pitch (@pitches)
+						{
+							$pitch->{'game'}   = $shallowGameInfo;
+							$pitch->{'inning'} = {
+								type   => 'top',
+								number => $inning->{num},
+							};
+							$pitch->{'atbat'} = $shallowAtBat;
+						}
+						$this->{storage}->save_pitches( \@pitches );
+					}
+				}
+			}
+			if ( $inning->{bottom} )
+			{
+				my @atbats = @{ $inning->{bottom}->{atbat} };
+				foreach my $atbat (@atbats)
+				{
+					$atbat->{'batter_team'}    = $inning->{'home_team'};
+					$atbat->{'pitcher_team'}   = $inning->{'away_team'};
+					$atbat->{'start_tfs_zulu'} =
+					  DateTime->from_epoch( epoch => str2time( $atbat->{'start_tfs_zulu'} ) );
+
+					my $shallowAtBat = dclone($atbat);
+					undef $shallowAtBat->{'pitch'};
+
+					if ( $atbat->{pitch} )
+					{
+						my @pitches = @{ $atbat->{pitch} };
+						foreach my $pitch (@pitches)
+						{
+							$pitch->{'game'}   = $shallowGameInfo;
+							$pitch->{'inning'} = {
+								type   => 'bottom',
+								number => $inning->{num},
+							};
+							$pitch->{'atbat'} = $shallowAtBat;
+						}
+						$this->{storage}->save_pitches( \@pitches );
+					}
+				}
+			}
+		}
+	}
 }
 
 ##
@@ -162,6 +234,7 @@ sub _save_pitches
 #
 # @param innings - the object representing all innings
 # @param shallowGame - the shallow game data that we'll embed in each at-bat
+# @private
 ##
 sub _save_at_bats
 {
@@ -238,6 +311,9 @@ sub _get_games_for_day
 
 ##
 # cleanup the data within the games
+#
+# @param {Object[]} games - the array of games
+# @private
 ##
 sub _cleanup_games
 {
@@ -262,6 +338,7 @@ sub _cleanup_games
 # string or undefined if the retrieval failed
 #
 # @param {string} url
+# @private
 ##
 sub _get_xml_page
 {
@@ -286,12 +363,13 @@ sub _get_xml_page
 # those objects
 #
 # @returns the decoded object, or 0 if the URL was bad
+# @private
 ##
 sub _get_xml_page_as_obj
 {
 	my $this = shift;
 	my $url  = shift;
-	
+
 	my $xml = $this->_get_xml_page($url);
 	if ($xml)
 	{
