@@ -1,4 +1,4 @@
-package Kruser::MLB::Storage;
+package Kruser::MLB::Storage::Mongo;
 
 ##
 # Provides storage to a MongoDB database where the source files are

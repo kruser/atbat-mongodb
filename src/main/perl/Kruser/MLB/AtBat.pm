@@ -126,6 +126,7 @@ sub retrieve_day
 		my $inningsObj = $this->_get_xml_page_as_obj($inningsUrl);
 
 		$this->_save_at_bats( $inningsObj, $shallowGameInfo );
+		$this->_save_pitches( $inningsObj, $shallowGameInfo );
 
 		my $gameRosterUrl = "$dayUrl/gid_$gameId/players.xml";
 		$logger->debug("Getting game roster details from $gameRosterUrl");
@@ -137,6 +138,21 @@ sub retrieve_day
 
 		$this->{storage}->save_game($game);
 	}
+}
+
+##
+# Runs through all innings and at-bats of a game and persists each
+# pitch as their own object in the database, embedding game and inning info
+# along the way
+#
+# @param innings - the object representing all innings
+# @param shallowGame - the shallow game data that we'll embed in each pitch
+## 
+sub _save_pitches
+{
+	my $this            = shift;
+	my $inningsObj      = shift;
+	my $shallowGameInfo = shift;
 }
 
 ##
@@ -242,6 +258,30 @@ sub _cleanup_games
 }
 
 ##
+# Gets the XML file from the given URL and returns the content
+# string or undefined if the retrieval failed
+#
+# @param {string} url
+##
+sub _get_xml_page
+{
+	my $this = shift;
+	my $url  = shift;
+
+	my $response = $browser->get($url);
+	if ( $response->is_success )
+	{
+		my $xml = $response->content();
+		return $xml;
+	}
+	else
+	{
+		$logger->warn("No content found at $url");
+		return undef;
+	}
+}
+
+##
 # Gets a page of XML from an absolute URL and returns a Perl data structure representing
 # those objects
 #
@@ -251,18 +291,15 @@ sub _get_xml_page_as_obj
 {
 	my $this = shift;
 	my $url  = shift;
-
-	my $response = $browser->get($url);
-	if ( $response->is_success )
+	
+	my $xml = $this->_get_xml_page($url);
+	if ($xml)
 	{
-		my $content = $response->content();
-		my $objs = XMLin( $content, KeyAttr => {} );
-		return $objs;
+		return XMLin( $xml, KeyAttr => {} );
 	}
 	else
 	{
-		$logger->warn("No content found at $url");
-		return 0;
+		return undef;
 	}
 }
 

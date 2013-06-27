@@ -6,7 +6,7 @@
 #
 use strict;
 use Kruser::MLB::AtBat;
-use Kruser::MLB::Storage;
+use Kruser::MLB::Storage::Mongo;
 use Config::Properties;
 use Log::Log4perl;
 use Data::Dumper;
@@ -26,7 +26,7 @@ my $logger = Log::Log4perl->get_logger("atbatETL");
 ##
 load_options();
 load_properties();
-my $storage = Kruser::MLB::Storage->new(
+my $storage = Kruser::MLB::Storage::Mongo->new(
 	dbName => $properties->getProperty('db.name'),
 	dbHost => $properties->getProperty('db.host'),
 );
