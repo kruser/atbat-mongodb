@@ -127,8 +127,8 @@ sub retrieve_day
 		my $inningsXml = $this->_get_xml_page($inningsUrl);
 		if ($inningsXml)
 		{
-			$this->_save_at_bats( XMLin( $inningsXml, KeyAttr => {} ), $shallowGameInfo );
-			$this->_save_pitches( XMLin( $inningsXml, KeyAttr => {}, ForceArray => ['pitch'] ), $shallowGameInfo );
+			$this->_save_at_bats( XMLin( $inningsXml, KeyAttr => {}, ForceArray => ['atbat'] ), $shallowGameInfo );
+			$this->_save_pitches( XMLin( $inningsXml, KeyAttr => {}, ForceArray => ['atbat','pitch'] ), $shallowGameInfo );
 		}
 
 		my $gameRosterUrl = "$dayUrl/gid_$gameId/players.xml";
