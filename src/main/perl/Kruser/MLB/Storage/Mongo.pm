@@ -66,16 +66,19 @@ sub save_at_bats
 {
 	my $this   = shift;
 	my $atbats = shift;
-	
+
 	my $collectionName = 'atbats';
 
-	my $collection = $mongoDB->get_collection($collectionName);
-	my @ids = $collection->batch_insert(\@{$atbats});	
-	
-	my $length = @ids;
-	$logger->debug("Saved $length at bats to the '$collectionName' collection");
-}
+	my $length = @{$atbats};
+	if ($length)
+	{
+		my $collection = $mongoDB->get_collection($collectionName);
+		my @ids        = $collection->batch_insert( \@{$atbats} );
 
+		my $length = @ids;
+		$logger->debug("Saved $length at bats to the '$collectionName' collection");
+	}
+}
 ##
 # Saves an array of pitches
 #
@@ -83,26 +86,20 @@ sub save_at_bats
 ##
 sub save_pitches
 {
-	my $this   = shift;
+	my $this    = shift;
 	my $pitches = shift;
-	
+
 	my $collectionName = 'pitches';
 
-	my $collection = $mongoDB->get_collection($collectionName);
-	my @ids = $collection->batch_insert(\@{$pitches});	
-	
-	my $length = @ids;
-	$logger->debug("Saved $length pitches to the '$collectionName' collection");
-}
+	my $length = @{$pitches};
+	if ($length)
+	{
+		my $collection = $mongoDB->get_collection($collectionName);
+		my @ids        = $collection->batch_insert( \@{$pitches} );
 
-##
-# Saves an array of innings
-#
-# @param innings array
-##
-sub save_innings
-{
-	my $this = shift;
+		my $length = @ids;
+		$logger->debug("Saved $length pitches to the '$collectionName' collection");
+	}
 }
 
 ##

@@ -41,24 +41,6 @@ sub new
 }
 
 ##
-# Initiate the sync between the local storage solution
-# and MLB's AtBat XML files
-##
-sub initiate_sync
-{
-	my $this = shift;
-	$logger->info("Starting MLB ETL");
-	if ( $this->{year} )
-	{
-		$this->_retrieve_year( $this->{year} );
-	}
-	else
-	{
-		$this->_retrieve_since_last();
-	}
-}
-
-##
 # retreives data since the last sync point
 sub retrieve_since_last
 {
@@ -74,6 +56,11 @@ sub retrieve_year
 	my $this = shift;
 	my $year = shift;
 	$logger->info("Retrieving a full year for $year. Sit tight, this could take a few minutes.");
+
+	for ( my $month = 3 ; $month <= 11 ; $month++ )
+	{
+		$this->retrieve_month( $year, $month );
+	}
 }
 
 ##
@@ -84,8 +71,18 @@ sub retrieve_month
 	my $this  = shift;
 	my $year  = shift;
 	my $month = shift;
-	my $day   = shift;
 	$logger->info("Retrieving data for the month $year-$month.");
+	if ( $month > 2 && $month < 12 )
+	{
+		for ( my $day = 1 ; $day <= 31 ; $day++ )
+		{
+			$this->retrieve_day( $year, $month, $day );
+		}
+	}
+	else
+	{
+		$logger->info("skipping analyzing $year-$month since there aren't MLB games");
+	}
 }
 
 ##
@@ -111,35 +108,41 @@ sub retrieve_day
 	my @games = $this->_get_games_for_day($dayUrl);
 	foreach my $game (@games)
 	{
-		my $gameId = $game->{gameday};
-
-		my $shallowGameInfo = {
-			id        => $gameId,
-			time      => $game->{time},
-			away_team => $game->{'away_code'},
-			home_team => $game->{'home_code'},
-		};
-
-		my $url = $this->{apibase} . "/year_$year/month_$month/day_$day/epg.xml";
-
-		my $inningsUrl = "$dayUrl/gid_$gameId/inning/inning_all.xml";
-		$logger->debug("Getting at-bat details from $inningsUrl");
-		my $inningsXml = $this->_get_xml_page($inningsUrl);
-		if ($inningsXml)
+		my $gameType = $game->{'game_type'};
+		if ( $gameType eq 'R' )
 		{
-			$this->_save_at_bats( XMLin( $inningsXml, KeyAttr => {}, ForceArray => ['atbat'] ), $shallowGameInfo );
-			$this->_save_pitches( XMLin( $inningsXml, KeyAttr => {}, ForceArray => ['atbat','pitch'] ), $shallowGameInfo );
-		}
+			my $gameId = $game->{gameday};
 
-		my $gameRosterUrl = "$dayUrl/gid_$gameId/players.xml";
-		$logger->debug("Getting game roster details from $gameRosterUrl");
-		my $gameRosterObj = $this->_get_xml_page_as_obj($gameRosterUrl);
-		if ($gameRosterObj)
-		{
-			$game->{team} = $gameRosterObj->{team};
-		}
+			my $shallowGameInfo = {
+				id        => $gameId,
+				time      => $game->{time},
+				away_team => $game->{'away_code'},
+				home_team => $game->{'home_code'},
+			};
 
-		$this->{storage}->save_game($game);
+			my $url = $this->{apibase} . "/year_$year/month_$month/day_$day/epg.xml";
+
+			my $inningsUrl = "$dayUrl/gid_$gameId/inning/inning_all.xml";
+			$logger->debug("Getting at-bat details from $inningsUrl");
+			my $inningsXml = $this->_get_xml_page($inningsUrl);
+			if ($inningsXml)
+			{
+				$this->_save_at_bats( XMLin( $inningsXml, KeyAttr => {}, ForceArray => [ 'inning', 'atbat' ] ),
+					$shallowGameInfo );
+				$this->_save_pitches( XMLin( $inningsXml, KeyAttr => {}, ForceArray => [ 'inning', 'atbat', 'pitch' ] ),
+					$shallowGameInfo );
+			}
+
+			my $gameRosterUrl = "$dayUrl/gid_$gameId/players.xml";
+			$logger->debug("Getting game roster details from $gameRosterUrl");
+			my $gameRosterObj = $this->_get_xml_page_as_obj($gameRosterUrl);
+			if ($gameRosterObj)
+			{
+				$game->{team} = $gameRosterObj->{team};
+			}
+
+			$this->{storage}->save_game($game);
+		}
 	}
 }
 
@@ -161,11 +164,13 @@ sub _save_pitches
 	my $inningsObj      = shift;
 	my $shallowGameInfo = shift;
 
+	my @allPitches = ();
+
 	if ($inningsObj)
 	{
 		foreach my $inning ( @{ $inningsObj->{inning} } )
 		{
-			if ( $inning->{top} )
+			if ( $inning->{top} && $inning->{top}->{atbat} )
 			{
 				my @atbats = @{ $inning->{top}->{atbat} };
 				foreach my $atbat (@atbats)
@@ -188,12 +193,12 @@ sub _save_pitches
 								number => $inning->{num},
 							};
 							$pitch->{'atbat'} = $shallowAtBat;
+							push( @allPitches, $pitch );
 						}
-						$this->{storage}->save_pitches( \@pitches );
 					}
 				}
 			}
-			if ( $inning->{bottom} )
+			if ( $inning->{bottom} && $inning->{bottom}->{atbat} )
 			{
 				my @atbats = @{ $inning->{bottom}->{atbat} };
 				foreach my $atbat (@atbats)
@@ -216,13 +221,14 @@ sub _save_pitches
 								number => $inning->{num},
 							};
 							$pitch->{'atbat'} = $shallowAtBat;
+							push( @allPitches, $pitch );
 						}
-						$this->{storage}->save_pitches( \@pitches );
 					}
 				}
 			}
 		}
 	}
+	$this->{storage}->save_pitches( \@allPitches );
 }
 
 ##
@@ -240,11 +246,12 @@ sub _save_at_bats
 	my $inningsObj      = shift;
 	my $shallowGameInfo = shift;
 
-	if ($inningsObj)
+	my @allAtBats = ();
+	if ( $inningsObj && $inningsObj->{'inning'} )
 	{
 		foreach my $inning ( @{ $inningsObj->{inning} } )
 		{
-			if ( $inning->{top} )
+			if ( $inning->{top} && $inning->{top}->{atbat} )
 			{
 				my @atbats = @{ $inning->{top}->{atbat} };
 				foreach my $atbat (@atbats)
@@ -258,10 +265,10 @@ sub _save_at_bats
 					};
 					$atbat->{'game'}           = $shallowGameInfo,;
 					$atbat->{'start_tfs_zulu'} = _convert_to_datetime( $atbat->{'start_tfs_zulu'} );
+					push( @allAtBats, $atbat );
 				}
-				$this->{storage}->save_at_bats( \@atbats );
 			}
-			if ( $inning->{bottom} )
+			if ( $inning->{bottom} && $inning->{bottom}->{atbat} )
 			{
 				my @atbats = @{ $inning->{bottom}->{atbat} };
 				foreach my $atbat (@atbats)
@@ -275,11 +282,12 @@ sub _save_at_bats
 					};
 					$atbat->{'game'}           = $shallowGameInfo,;
 					$atbat->{'start_tfs_zulu'} = _convert_to_datetime( $atbat->{'start_tfs_zulu'} );
+					push( @allAtBats, $atbat );
 				}
-				$this->{storage}->save_at_bats( \@atbats );
 			}
 		}
 	}
+	$this->{storage}->save_at_bats( \@allAtBats );
 }
 
 ##
@@ -293,15 +301,16 @@ sub _get_games_for_day
 
 	my $url = "$dayUrl/epg.xml";
 	$logger->debug("Getting gameday lists from $url");
-	my $gamesObj = $this->_get_xml_page_as_obj($url);
-	if ($gamesObj)
+	my $gamesXml = $this->_get_xml_page($url);
+	my $gamesObj = XMLin( $gamesXml, KeyAttr => {}, ForceArray => ['game'] );
+	if ( $gamesObj && $gamesObj->{game} )
 	{
 		$this->_cleanup_games( \@{ $gamesObj->{game} } );
 		return @{ $gamesObj->{game} };
 	}
 	else
 	{
-		return [];
+		return ();
 	}
 }
 
