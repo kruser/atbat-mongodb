@@ -128,7 +128,7 @@ sub retrieve_day
 		if ($inningsXml)
 		{
 			$this->_save_at_bats( XMLin( $inningsXml, KeyAttr => {} ), $shallowGameInfo );
-			$this->_save_pitches( XMLin( $inningsXml, KeyAttr => {} ), $shallowGameInfo );
+			$this->_save_pitches( XMLin( $inningsXml, KeyAttr => {}, ForceArray => ['pitch'] ), $shallowGameInfo );
 		}
 
 		my $gameRosterUrl = "$dayUrl/gid_$gameId/players.xml";
@@ -172,8 +172,7 @@ sub _save_pitches
 				{
 					$atbat->{'batter_team'}    = $inning->{'away_team'};
 					$atbat->{'pitcher_team'}   = $inning->{'home_team'};
-					$atbat->{'start_tfs_zulu'} =
-					  DateTime->from_epoch( epoch => str2time( $atbat->{'start_tfs_zulu'} ) );
+					$atbat->{'start_tfs_zulu'} = _convert_to_datetime( $atbat->{'start_tfs_zulu'} );
 
 					my $shallowAtBat = dclone($atbat);
 					undef $shallowAtBat->{'pitch'};
@@ -201,8 +200,7 @@ sub _save_pitches
 				{
 					$atbat->{'batter_team'}    = $inning->{'home_team'};
 					$atbat->{'pitcher_team'}   = $inning->{'away_team'};
-					$atbat->{'start_tfs_zulu'} =
-					  DateTime->from_epoch( epoch => str2time( $atbat->{'start_tfs_zulu'} ) );
+					$atbat->{'start_tfs_zulu'} = _convert_to_datetime( $atbat->{'start_tfs_zulu'} );
 
 					my $shallowAtBat = dclone($atbat);
 					undef $shallowAtBat->{'pitch'};
@@ -259,8 +257,7 @@ sub _save_at_bats
 						number => $inning->{num},
 					};
 					$atbat->{'game'}           = $shallowGameInfo,;
-					$atbat->{'start_tfs_zulu'} =
-					  DateTime->from_epoch( epoch => str2time( $atbat->{'start_tfs_zulu'} ) );
+					$atbat->{'start_tfs_zulu'} = _convert_to_datetime( $atbat->{'start_tfs_zulu'} );
 				}
 				$this->{storage}->save_at_bats( \@atbats );
 			}
@@ -277,8 +274,7 @@ sub _save_at_bats
 						number => $inning->{num},
 					};
 					$atbat->{'game'}           = $shallowGameInfo,;
-					$atbat->{'start_tfs_zulu'} =
-					  DateTime->from_epoch( epoch => str2time( $atbat->{'start_tfs_zulu'} ) );
+					$atbat->{'start_tfs_zulu'} = _convert_to_datetime( $atbat->{'start_tfs_zulu'} );
 				}
 				$this->{storage}->save_at_bats( \@atbats );
 			}
@@ -379,6 +375,27 @@ sub _get_xml_page_as_obj
 	{
 		return undef;
 	}
+}
+
+##
+# Converts a date string to a DateTime object
+#
+# @param {string} datetimeString
+# @static
+# @private
+##
+sub _convert_to_datetime
+{
+	my $datetimeString = shift;
+	eval {
+		my $conversion = DateTime->from_epoch( epoch => str2time($datetimeString) );
+		return $conversion;
+	  }
+	  or do
+	{
+		$logger->error("The string '$datetimeString' can't be converted to a DateTime object");
+		return undef;
+	};
 }
 
 1;
