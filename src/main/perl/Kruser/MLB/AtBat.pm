@@ -102,48 +102,62 @@ sub retrieve_day
 	$day   = '0' . $day   if $day < 10;
 
 	my $dayUrl = $this->{apibase} . "/year_$year/month_$month/day_$day";
-
 	$logger->info("Retrieving data for $year-$month-$day.");
 
 	my @games = $this->_get_games_for_day($dayUrl);
 	foreach my $game (@games)
 	{
-		my $gameType = $game->{'game_type'};
-		if ( $gameType eq 'R' )
-		{
-			my $gameId = $game->{gameday};
-
-			my $shallowGameInfo = {
-				id        => $gameId,
-				time      => $game->{time},
-				away_team => $game->{'away_code'},
-				home_team => $game->{'home_code'},
-			};
-
-			my $url = $this->{apibase} . "/year_$year/month_$month/day_$day/epg.xml";
-
-			my $inningsUrl = "$dayUrl/gid_$gameId/inning/inning_all.xml";
-			$logger->debug("Getting at-bat details from $inningsUrl");
-			my $inningsXml = $this->_get_xml_page($inningsUrl);
-			if ($inningsXml)
-			{
-				$this->_save_at_bats( XMLin( $inningsXml, KeyAttr => {}, ForceArray => [ 'inning', 'atbat' ] ),
-					$shallowGameInfo );
-				$this->_save_pitches( XMLin( $inningsXml, KeyAttr => {}, ForceArray => [ 'inning', 'atbat', 'pitch' ] ),
-					$shallowGameInfo );
-			}
-
-			my $gameRosterUrl = "$dayUrl/gid_$gameId/players.xml";
-			$logger->debug("Getting game roster details from $gameRosterUrl");
-			my $gameRosterObj = $this->_get_xml_page_as_obj($gameRosterUrl);
-			if ($gameRosterObj)
-			{
-				$game->{team} = $gameRosterObj->{team};
-			}
-
-			$this->{storage}->save_game($game);
-		}
+		$this->_save_game_data($dayUrl, $game);
 	}
+}
+
+##
+# Gets the inning data for the game passed in and persists all at-bats
+# and pitches.
+#
+# @param {string} dayUrl - the URL for all games that day
+# @param {Object} game - the top level game data
+##
+sub _save_game_data
+{
+	my $this = shift;
+	my $dayUrl = shift;
+	my $game = shift;
+
+	my $gameType = $game->{'game_type'};
+	if ( $gameType eq 'R' )
+	{
+		my $gameId = $game->{gameday};
+
+		my $shallowGameInfo = {
+			id        => $gameId,
+			time      => $game->{time},
+			away_team => $game->{'away_code'},
+			home_team => $game->{'home_code'},
+		};
+
+		my $inningsUrl = "$dayUrl/gid_$gameId/inning/inning_all.xml";
+		$logger->debug("Getting at-bat details from $inningsUrl");
+		my $inningsXml = $this->_get_xml_page($inningsUrl);
+		if ($inningsXml)
+		{
+			$this->_save_at_bats( XMLin( $inningsXml, KeyAttr => {}, ForceArray => [ 'inning', 'atbat' ] ),
+				$shallowGameInfo );
+			$this->_save_pitches( XMLin( $inningsXml, KeyAttr => {}, ForceArray => [ 'inning', 'atbat', 'pitch' ] ),
+				$shallowGameInfo );
+		}
+
+		my $gameRosterUrl = "$dayUrl/gid_$gameId/players.xml";
+		$logger->debug("Getting game roster details from $gameRosterUrl");
+		my $gameRosterObj = $this->_get_xml_page_as_obj($gameRosterUrl);
+		if ($gameRosterObj)
+		{
+			$game->{team} = $gameRosterObj->{team};
+		}
+
+		$this->{storage}->save_game($game);
+	}
+
 }
 
 ##
