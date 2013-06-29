@@ -93,7 +93,7 @@ sub _retrieve_since
 	my $today        = DateTime->now()->epoch();
 	while ( $lastDateTime < $today )
 	{
-		my $dt = DateTime->from_epoch( epoch => $lastDateTime);
+		my $dt = DateTime->from_epoch( epoch => $lastDateTime );
 		$this->_retrieve_day( $dt->year(), $dt->month(), $dt->day() );
 		$lastDateTime += 86400;
 	}
@@ -297,8 +297,9 @@ sub _save_pitches
 						my @pitches = @{ $atbat->{pitch} };
 						foreach my $pitch (@pitches)
 						{
-							$pitch->{'game'}   = $shallowGameInfo;
-							$pitch->{'inning'} = {
+							$pitch->{'tfs_zulu'} = _convert_to_datetime( $pitch->{'tfs_zulu'} );
+							$pitch->{'game'}     = $shallowGameInfo;
+							$pitch->{'inning'}   = {
 								type   => 'top',
 								number => $inning->{num},
 							};
@@ -325,8 +326,9 @@ sub _save_pitches
 						my @pitches = @{ $atbat->{pitch} };
 						foreach my $pitch (@pitches)
 						{
-							$pitch->{'game'}   = $shallowGameInfo;
-							$pitch->{'inning'} = {
+							$pitch->{'tfs_zulu'} = _convert_to_datetime( $pitch->{'tfs_zulu'} );
+							$pitch->{'game'}     = $shallowGameInfo;
+							$pitch->{'inning'}   = {
 								type   => 'bottom',
 								number => $inning->{num},
 							};

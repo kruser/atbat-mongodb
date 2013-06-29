@@ -81,7 +81,15 @@ sub load_options()
 ##
 sub usage
 {
-
+	print "With no args, this program will sync from the last date the program was run\n";
+	print "When you initially run it, you should sync and entire month or year. See options below\n\n";
+	print "Optional args\n";
+	print " --year=YYYY (the year to sync with)\n";
+	print " --month=MM (the month to sync with, must be used with --year)\n";
+	print " --day=DD (the day to sync with, must be used with --year and --month)\n";
+	print "\nFor example, this will sync June 2013\n";
+	print "\tperl atbatETL.pl --year=2013 --month=06\n";
+	exit;
 	# not sure if we need this yet
 }
 
