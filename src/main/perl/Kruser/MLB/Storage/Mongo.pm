@@ -124,7 +124,7 @@ sub save_players
 	foreach my $playerId ( keys %$players )
 	{
 		my $result = $collection->find_one( { id => $playerId } );
-		if (!$result)
+		if ( !$result )
 		{
 			push( @playersToSave, $players->{$playerId} );
 		}
@@ -144,10 +144,33 @@ sub save_players
 # Get the date when the database was last sync'd to
 # MLB data
 #
-# @returns epoch timestamp of the last sync
+# A cli query for this might look like...
+# db.games.find().sort({'source_day':-1}).limit(1).pretty();
+#
+# @returns {long} epoch timestamp of the last sync
 ##
 sub get_last_sync_date
 {
 	my $this = shift;
+}
+
+##
+# Checks if we already have games for that day.
+#
+# A cli query for this might look like...
+# db.games.find({'source_day':'2013-06-01'}).limit(1).pretty();
+#
+# @param {string} day in YYYY-MM-DD format
+# @returns {boolean} true if we already have persisted data for this day
+##
+sub already_have_day
+{
+	my $this      = shift;
+	my $dayString = shift;
+
+	my $gamesCollection = $mongoDB->get_collection('games');
+	my $gamesForDay     = $gamesCollection->find( { 'source_day' => $dayString } );
+	my $count = $gamesForDay->count();
+	return $count;
 }
 1;

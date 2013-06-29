@@ -121,32 +121,44 @@ sub _retrieve_day
 	my $month = shift;
 	my $day   = shift;
 
-	my $targetDay =
-	  DateTime->new( year => $year, month => $month, day => $day, hour => 23, minute => 59, second => 59 );
+	my $targetDay;
+
+	eval {
+		$targetDay =
+		  DateTime->new( year => $year, month => $month, day => $day, hour => 23, minute => 59, second => 59 );
+	} or do { return; };
+
+	# format the short strings for the URL
+	$month = '0' . $month if $month < 10;
+	$day   = '0' . $day   if $day < 10;
+	my $dayString = "$year-$month-$day";
+	
 	my $now              = DateTime->now();
 	my $millisDifference = $now->epoch() - $targetDay->epoch();
 	if ( $millisDifference < 60 * 60 * 8 )
 	{
 		$logger->info(
-			"The target date for $year-$month-$day is today, in the future, or late last night. Exiting soon....");
+			"The target date for $dayString is today, in the future, or late last night. Exiting soon....");
 		$this->{beforetoday} = 0;
 		return;
 	}
-
-	# format the short strings for the URL
-	$month = '0' . $month if $month < 10;
-	$day   = '0' . $day   if $day < 10;
+	elsif ( $this->{storage}->already_have_day($dayString) )
+	{
+		$logger->info("We already have some game data for $dayString. Skipping this day.");
+		return;
+	}
 
 	my $dayUrl = $this->{apibase} . "/year_$year/month_$month/day_$day";
-	$logger->info("Starting retrieving data for $year-$month-$day.");
+	$logger->info("Starting retrieving data for $dayString.");
 
 	my @threads;
 	my @games = $this->_get_games_for_day($dayUrl);
 	foreach my $game (@games)
 	{
+		$game->{'source_day'} = $dayString;
 		$this->_save_game_data( $dayUrl, $game );
 	}
-	$logger->info("Finished retrieving data for $year-$month-$day.");
+	$logger->info("Finished retrieving data for $dayString.");
 }
 
 ##
