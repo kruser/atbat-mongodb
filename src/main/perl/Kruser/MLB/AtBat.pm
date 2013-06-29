@@ -14,6 +14,8 @@ use Data::Dumper;
 use Date::Parse;
 use DateTime;
 use Storable 'dclone';
+use threads;
+use threads::shared;
 
 my $browser = LWP::UserAgent->new( ssl_opts => { verify_hostname => 0 } );
 my $logger  = Log::Log4perl->get_logger("Kruser::MLB::AtBat");
@@ -102,13 +104,21 @@ sub retrieve_day
 	$day   = '0' . $day   if $day < 10;
 
 	my $dayUrl = $this->{apibase} . "/year_$year/month_$month/day_$day";
-	$logger->info("Retrieving data for $year-$month-$day.");
+	$logger->info("Starting retrieving data for $year-$month-$day.");
 
+	my @threads;
 	my @games = $this->_get_games_for_day($dayUrl);
 	foreach my $game (@games)
 	{
-		$this->_save_game_data($dayUrl, $game);
+		my $thread = threads->new( \&_save_game_data, $this, $dayUrl, $game );
+		push( @threads, $thread );
+		#$this->_save_game_data( $dayUrl, $game );
 	}
+	foreach (@threads)
+	{
+		$_->join;
+	}
+	$logger->info("Finished retrieving data for $year-$month-$day.");
 }
 
 ##
@@ -120,9 +130,9 @@ sub retrieve_day
 ##
 sub _save_game_data
 {
-	my $this = shift;
+	my $this   = shift;
 	my $dayUrl = shift;
-	my $game = shift;
+	my $game   = shift;
 
 	my $gameType = $game->{'game_type'};
 	if ( $gameType eq 'R' )
