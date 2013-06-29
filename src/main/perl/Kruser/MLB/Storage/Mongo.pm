@@ -38,7 +38,6 @@ sub new
 	}
 
 	$mongoClient = MongoDB::MongoClient->new;
-	$mongoClient->dt_type('DateTime::Tiny');
 	$mongoDB = $mongoClient->get_database( $this->{dbName} );
 
 	bless( $this, $package );
@@ -147,11 +146,23 @@ sub save_players
 # A cli query for this might look like...
 # db.games.find().sort({'source_day':-1}).limit(1).pretty();
 #
-# @returns {long} epoch timestamp of the last sync
+# @returns {DateTime} date of the last sync
 ##
 sub get_last_sync_date
 {
 	my $this = shift;
+
+	my $gamesCollection = $mongoDB->get_collection('games');
+	my $lastGame = $gamesCollection->find()->sort( { 'source_day' => -1 } )->limit(1);
+	if ( $lastGame->count() > 0 )
+	{
+		my $latestGame = $lastGame->next();
+		return $latestGame->{'source_day'};
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 ##
@@ -170,7 +181,7 @@ sub already_have_day
 
 	my $gamesCollection = $mongoDB->get_collection('games');
 	my $gamesForDay     = $gamesCollection->find( { 'source_day' => $dayString } );
-	my $count = $gamesForDay->count();
+	my $count           = $gamesForDay->count();
 	return $count;
 }
 1;

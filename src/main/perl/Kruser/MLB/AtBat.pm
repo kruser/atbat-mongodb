@@ -65,10 +65,38 @@ sub initiate_sync
 	}
 	else
 	{
-
-		# TODO: sync since last data
+		my $lastDate = $this->{storage}->get_last_sync_date();
+		if ($lastDate)
+		{
+			$this->_retrieve_since($lastDate);
+		}
+		else
+		{
+			$logger->info(
+"Your database doesn't have any data so we're not sure when to sync to. Try seeding it with a year or month."
+			);
+		}
 	}
 	$this->{storage}->save_players( $this->{players} );
+}
+
+##
+# Retrieves all data since the given date
+#
+##
+sub _retrieve_since
+{
+	my $this     = shift;
+	my $lastDate = shift;
+
+	my $lastDateTime = _convert_to_datetime($lastDate)->epoch() + 86400;
+	my $today        = DateTime->now()->epoch();
+	while ( $lastDateTime < $today )
+	{
+		my $dt = DateTime->from_epoch( epoch => $lastDateTime);
+		$this->_retrieve_day( $dt->year(), $dt->month(), $dt->day() );
+		$lastDateTime += 86400;
+	}
 }
 
 ##
@@ -132,13 +160,12 @@ sub _retrieve_day
 	$month = '0' . $month if $month < 10;
 	$day   = '0' . $day   if $day < 10;
 	my $dayString = "$year-$month-$day";
-	
+
 	my $now              = DateTime->now();
 	my $millisDifference = $now->epoch() - $targetDay->epoch();
 	if ( $millisDifference < 60 * 60 * 8 )
 	{
-		$logger->info(
-			"The target date for $dayString is today, in the future, or late last night. Exiting soon....");
+		$logger->info("The target date for $dayString is today, in the future, or late last night. Exiting soon....");
 		$this->{beforetoday} = 0;
 		return;
 	}
