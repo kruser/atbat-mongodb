@@ -15,7 +15,7 @@ use Data::Dumper;
 
 $MongoDB::BSON::looks_like_number = 1;
 
-my $logger = Log::Log4perl->get_logger("Kruser::MLB::AtBat");
+my $logger = Log::Log4perl->get_logger("Kruser::MLB::Storage::Mongo");
 my $mongoClient;
 my $mongoDB;
 
@@ -124,7 +124,7 @@ sub save_players
 	foreach my $playerId ( keys %$players )
 	{
 		my $result = $collection->find_one( { id => $playerId } );
-		if ($result)
+		if (!$result)
 		{
 			push( @playersToSave, $players->{$playerId} );
 		}
