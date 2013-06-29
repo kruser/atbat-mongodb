@@ -19,7 +19,10 @@ my $logger = Log::Log4perl->get_logger("Kruser::MLB::AtBat");
 my $mongoClient;
 my $mongoDB;
 
+##
 # construct an instance
+# TODO: use the dbHost property
+##
 sub new
 {
 	my ( $proto, %params ) = @_;
@@ -99,6 +102,41 @@ sub save_pitches
 
 		my $length = @ids;
 		$logger->debug("Saved $length pitches to the '$collectionName' collection");
+	}
+}
+
+##
+# This method will be called to save or update any players. Each object will have an
+# 'id' property. If one entry already exists in the database for this ID, the new record
+# should simply overwrite or ignore that entry
+#
+# @param {Object%} players - key is the MLB ID of the player
+##
+sub save_players
+{
+	my $this           = shift;
+	my $players        = shift;
+	my $collectionName = 'players';
+
+	my $collection    = $mongoDB->get_collection($collectionName);
+	my @playersToSave = ();
+
+	foreach my $playerId ( keys %$players )
+	{
+		my $result = $collection->find_one( { id => $playerId } );
+		if ($result)
+		{
+			push( @playersToSave, $players->{$playerId} );
+		}
+	}
+
+	my $length = @playersToSave;
+	if ($length)
+	{
+		my @ids = $collection->batch_insert( \@playersToSave );
+
+		my $length = @ids;
+		$logger->debug("Saved $length players to the '$collectionName' collection");
 	}
 }
 

@@ -14,8 +14,6 @@ use Data::Dumper;
 use Date::Parse;
 use DateTime;
 use Storable 'dclone';
-use threads;
-use threads::shared;
 
 my $browser = LWP::UserAgent->new( ssl_opts => { verify_hostname => 0 } );
 my $logger  = Log::Log4perl->get_logger("Kruser::MLB::AtBat");
@@ -29,8 +27,13 @@ sub new
 	my $package = ref($proto) || $proto;
 
 	my $this = {
-		apibase => undef,
-		storage => undef,
+		apibase     => undef,
+		storage     => undef,
+		beforetoday => 1,
+		year        => undef,
+		month       => undef,
+		day         => undef,
+		players     => {},
 	};
 
 	foreach my $key ( keys %params )
@@ -44,31 +47,50 @@ sub new
 
 ##
 # retreives data since the last sync point
-sub retrieve_since_last
+##
+sub initiate_sync
 {
+	my $this = shift;
+	if ( $this->{year} && $this->{month} && $this->{day} )
+	{
+		$this->_retrieve_day( $this->{year}, $this->{month}, $this->{day} );
+	}
+	elsif ( $this->{year} && $this->{month} )
+	{
+		$this->_retrieve_month( $this->{year}, $this->{month} );
+	}
+	elsif ( $this->{year} )
+	{
+		$this->_retrieve_year( $this->{year} );
+	}
+	else
+	{
 
+		# TODO: sync since last data
+	}
+	$this->{storage}->save_players( $this->{players} );
 }
 
 ##
 # retrieves a full year
 # @param year in YYYY format
 ##
-sub retrieve_year
+sub _retrieve_year
 {
 	my $this = shift;
 	my $year = shift;
 	$logger->info("Retrieving a full year for $year. Sit tight, this could take a few minutes.");
 
-	for ( my $month = 3 ; $month <= 11 ; $month++ )
+	for ( my $month = 3 ; $month <= 11 && $this->{'beforetoday'} ; $month++ )
 	{
-		$this->retrieve_month( $year, $month );
+		$this->_retrieve_month( $year, $month );
 	}
 }
 
 ##
 # retrieves an entire month's worth of data
 ##
-sub retrieve_month
+sub _retrieve_month
 {
 	my $this  = shift;
 	my $year  = shift;
@@ -76,9 +98,9 @@ sub retrieve_month
 	$logger->info("Retrieving data for the month $year-$month.");
 	if ( $month > 2 && $month < 12 )
 	{
-		for ( my $day = 1 ; $day <= 31 ; $day++ )
+		for ( my $day = 1 ; $day <= 31 && $this->{'beforetoday'} ; $day++ )
 		{
-			$this->retrieve_day( $year, $month, $day );
+			$this->_retrieve_day( $year, $month, $day );
 		}
 	}
 	else
@@ -92,12 +114,24 @@ sub retrieve_month
 # @param year in YYYY format
 # @param day in DD format
 ##
-sub retrieve_day
+sub _retrieve_day
 {
 	my $this  = shift;
 	my $year  = shift;
 	my $month = shift;
 	my $day   = shift;
+
+	my $targetDay =
+	  DateTime->new( year => $year, month => $month, day => $day, hour => 23, minute => 59, second => 59 );
+	my $now              = DateTime->now();
+	my $millisDifference = $now->epoch() - $targetDay->epoch();
+	if ( $millisDifference < 60 * 60 * 8 )
+	{
+		$logger->info(
+			"The target date for $year-$month-$day is today, in the future, or late last night. Exiting soon....");
+		$this->{beforetoday} = 0;
+		return;
+	}
 
 	# format the short strings for the URL
 	$month = '0' . $month if $month < 10;
@@ -110,13 +144,7 @@ sub retrieve_day
 	my @games = $this->_get_games_for_day($dayUrl);
 	foreach my $game (@games)
 	{
-		my $thread = threads->new( \&_save_game_data, $this, $dayUrl, $game );
-		push( @threads, $thread );
-		#$this->_save_game_data( $dayUrl, $game );
-	}
-	foreach (@threads)
-	{
-		$_->join;
+		$this->_save_game_data( $dayUrl, $game );
 	}
 	$logger->info("Finished retrieving data for $year-$month-$day.");
 }
@@ -159,12 +187,31 @@ sub _save_game_data
 
 		my $gameRosterUrl = "$dayUrl/gid_$gameId/players.xml";
 		$logger->debug("Getting game roster details from $gameRosterUrl");
-		my $gameRosterObj = $this->_get_xml_page_as_obj($gameRosterUrl);
-		if ($gameRosterObj)
-		{
-			$game->{team} = $gameRosterObj->{team};
-		}
 
+		my $gameRosterXml = $this->_get_xml_page($gameRosterUrl);
+		if ($gameRosterXml)
+		{
+			my $gameRosterObj = XMLin( $gameRosterXml, KeyAttr => {}, ForceArray => [ 'team', 'player', 'coach' ] );
+			if ( $gameRosterObj && $gameRosterObj->{team} )
+			{
+				$game->{team} = $gameRosterObj->{team};
+
+				foreach my $team ( @{ $gameRosterObj->{team} } )
+				{
+					if ( $team->{'player'} )
+					{
+						foreach my $player ( @{ $team->{'player'} } )
+						{
+							$this->{players}->{ $player->{id} } = {
+								id    => $player->{id},
+								first => $player->{first},
+								last  => $player->{last},
+							};
+						}
+					}
+				}
+			}
+		}
 		$this->{storage}->save_game($game);
 	}
 
@@ -383,29 +430,6 @@ sub _get_xml_page
 	else
 	{
 		$logger->warn("No content found at $url");
-		return undef;
-	}
-}
-
-##
-# Gets a page of XML from an absolute URL and returns a Perl data structure representing
-# those objects
-#
-# @returns the decoded object, or 0 if the URL was bad
-# @private
-##
-sub _get_xml_page_as_obj
-{
-	my $this = shift;
-	my $url  = shift;
-
-	my $xml = $this->_get_xml_page($url);
-	if ($xml)
-	{
-		return XMLin( $xml, KeyAttr => {} );
-	}
-	else
-	{
 		return undef;
 	}
 }

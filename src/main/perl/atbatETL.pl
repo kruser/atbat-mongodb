@@ -34,24 +34,10 @@ my $atbat = Kruser::MLB::AtBat->new(
 	storage => $storage,
 	apibase => $properties->getProperty('apibase'),
 	year    => $year,
+	month   => $month,
+	day     => $day,
 );
-
-if ( $year && $month && $day )
-{
-	$atbat->retrieve_day( $year, $month, $day );
-}
-elsif ( $year && $month )
-{
-	$atbat->retrieve_month( $year, $month );
-}
-elsif ($year)
-{
-	$atbat->retrieve_year($year);
-}
-else
-{
-	$atbat->retrieve_since_last();
-}
+$atbat->initiate_sync();
 
 ##
 # loads the properties from the script configuration file
