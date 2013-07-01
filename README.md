@@ -55,8 +55,9 @@ You don't need to configure anything, just install Mongo and start the mongod pr
 ---
 
 ## Your First Run
-If you're just building your database, you'll first need to sync a specific day, month or year. I suggest you sync
-the current month, which takes about 10 minutes, give or take several minutes depending on your Internet connection.
+When you're first getting setup and your database is empty, you'll first need to sync a specific day, month or year. 
+I suggest you sync the current month, which takes about 10-20 minutes, give or take several minutes depending on your 
+Internet connection.
 
     ./atbatETL.pl --year=2013 --month=06
 
