@@ -4,7 +4,7 @@ atbat-mongodb
 ## The Gist
 This is a Perl project that pulls game, at-bat and pitch data from MLB's AtBat servers and shoves them into a local Mongo Database. 
 
-When you first get setup you can pull an entire year or months worth of data. From then on, each time you
+When you first get setup you can pull an entire year or month of data. From then on, each time you
 run the program it will pickup where it left off, keeping your database up-to-date with the baseball season.
 
 ---
