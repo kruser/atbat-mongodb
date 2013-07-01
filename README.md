@@ -211,7 +211,7 @@ soon, maybe not.
 
 ### ElasticSearch Storage
 I would like to have other storage options in addition to MongoDB. I would especially like to see an ElasticSearch.pm module in *Storage*.
-ElasticSearch offers some faceting capabilities that would let us stat heads to extra quick looks without extra coding. Before starting
+ElasticSearch offers some faceting capabilities that would give us extra quick looks without the overhead of the mongo group function. Before starting
 an ElasticSearch option though I think it would be wise to look at using a Mongo River that stores to ElasticSearch downstream of Mongo.
 
 ### MongoDB Options
