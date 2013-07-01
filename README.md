@@ -38,11 +38,11 @@ You'll need to install these modules if you don't have them installed already
 
 Normally you would use cpan to install each module. Something like...
 
-    $ sudo cpan install This::Module
+    $ sudo cpan install Config::Properties
     
 Or if you're on MacOS you may need to run it through Perl like...
 
-    $ perl -MCPAN -e 'install HTML::Template'
+    $ perl -MCPAN -e 'install Config::Properties'
   
 
 ### MongoDB
