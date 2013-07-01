@@ -36,7 +36,7 @@ You'll need to install these modules if you don't have them installed already
 * Storable
 * MongoDB
 
-Normally you would use cpan to install the module. Something like...
+Normally you would use cpan to install each module. Something like...
 
     $ sudo cpan install This::Module
     
@@ -129,8 +129,8 @@ I won't have a lot of information here. This part is mostly up to you, but I wan
 To find this data we'll query the *pitches* collection. Note that we're specifying the months in an 
 array of 0-11 instead of 1-12. So 3=April, 4=May, etc.
 
-   > db.pitches.find({"start_speed":{$gte:100}, "tfs_zulu":{$gte:new Date(2013,4,1), $lt:new Date(2013,5,1)}}).count();
-   42
+    > db.pitches.find({"start_speed":{$gte:100}, "tfs_zulu":{$gte:new Date(2013,4,1), $lt:new Date(2013,5,1)}}).count();
+    42
 
 We see that there were *42* total in the month of May 2013. Let's split them up and see how many were thrown for strikes, how many were balls
 and how many were hit into play. To do this, we'll use a *group()* function instead of a *find()*.
