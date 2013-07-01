@@ -1,11 +1,11 @@
 atbat-mongodb
 =============
 
-## Description
-A Perl project that pulls data from MLB's AtBat servers and shoves them into a local MongoDB. 
-In reality, this project is more of an atbat-to-nosql project, with the first implementation being for MongoDB.
-As you can see from the project package structure, the *Storage* package could be filled in with any number
-of implementations, provided they follow the "interface" that we define with the Mongo.pm module.
+## The Gist
+This is a Perl project that pulls game, at-bat and pitch data from MLB's AtBat servers and shoves them into a local Mongo Database. 
+
+When you first get setup you can pull an entire year or months worth of data. From then on, each time you
+run the program it will pickup where it left off, keeping your database up-to-date with the baseball season.
 
 ---
 
@@ -37,7 +37,12 @@ You'll need to install these modules if you don't have them installed already
 * MongoDB
 
 Normally you would use cpan to install the module. Something like...
-  $ sudo cpan install This::Module
+
+    $ sudo cpan install This::Module
+    
+Or if you're on MacOS you may need to run it through Perl like...
+
+    $ perl -MCPAN -e 'install HTML::Template'
   
 
 ### MongoDB
@@ -81,7 +86,7 @@ scheduled task for noon eastern time daily. I won't let it read before 8AM as a 
     
 ---
 
-## Your Awesome New Database!!
+## Your New Database!!
 Startup the *mongo* shell program found in your installs bin directory.
 
     RYANs-MacBook-Pro:dsire kruser$ /Applications/mongodb-osx-x86_64-2.2.0/bin/mongo
@@ -90,8 +95,9 @@ Startup the *mongo* shell program found in your installs bin directory.
     > 
 
 ### Collections
-Collections are just tables to your SQL folks. You have five of them which you can see from *show collections* after switch to the 
-database with *use mlbatbat* database.
+Collections in MongoDB are analygous to tables in a relational database. You'll have five of them which you can see from the *show collections* 
+command below. Note that when you first open the mongo shell you'll need to switch the context to the *mlbatbat* database using the *use mlbatbat*
+command as you see below.
 
     > use mlbatbat
     switched to db mlbatbat
@@ -104,7 +110,7 @@ database with *use mlbatbat* database.
     > 
 
 You should have lots of data in your four collections as you can see below using the *count()* function. If you don't see lots of records then
-start over at the beginning.
+start over at the beginning as something went wrong with the data collection.
 
     > db.games.count()
     1222
@@ -117,12 +123,44 @@ start over at the beginning.
     > 
 
 ### Some sample functions
-I won't have a lot of data here. This part is mostly up to you, but I want to give you some foo to get you excited so here goes.
+I won't have a lot of information here. This part is mostly up to you, but I want to give you some foo to get you excited.
 
-#### How many 100+ MPH pitches were thrown in May 2013? How many by left handed pitchers and how many by right handed pitchers?
-To find this data we'll query the *pitches* collection.
+#### How many 100+ MPH pitches were thrown in May 2013? How many were thrown for balls and how many for strikes?
+To find this data we'll query the *pitches* collection. Note that we're specifying the months in an 
+array of 0-11 instead of 1-12. So 3=April, 4=May, etc.
 
-TODO
+   > db.pitches.find({"start_speed":{$gte:100}, "tfs_zulu":{$gte:new Date(2013,4,1), $lt:new Date(2013,5,1)}}).count();
+   42
+
+We see that there were *42* total in the month of May 2013. Let's split them up and see how many were thrown for strikes, how many were balls
+and how many were hit into play. To do this, we'll use a *group()* function instead of a *find()*.
+
+    > db.pitches.group (
+    {
+       key: {"type": true}, 
+       cond: {"start_speed":{$gte:100}, "tfs_zulu":{$gte:new Date(2013,4,1), $lt:new Date(2013,5,1)}},
+       initial: {sum: 0}, 
+       reduce: function(doc, prev) { prev.sum += 1}
+    });
+    [
+	    {
+		    "type" : "B",
+		    "sum" : 15
+	    },
+	    {
+		    "type" : "X",
+		    "sum" : 9
+	    },
+	    {
+		    "type" : "S",
+		    "sum" : 18
+	    }
+    ]
+    
+By using *group()* we can see the breakdown of the league's 100+MPH pitches
+* 15 balls (B)
+* 18 strikes (S)
+* 9 hit into play (X)
 
 #### What is Joe Mauer's Batting Average with 2 strikes in all of 2013?
 First we'll need to find Joe Mauer's AtBat ID.
