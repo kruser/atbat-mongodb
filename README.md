@@ -7,6 +7,9 @@ This is a Perl project that pulls game, at-bat and pitch data from MLB's AtBat s
 When you first get setup you can pull an entire year or month of data. From then on, each time you
 run the program it will pickup where it left off, keeping your database up-to-date with the baseball season.
 
+Disclaimer: You'll probably need some software development background to get up and running with this project. At the least a comfort
+with databases.
+
 ---
 
 ## Prerequisites
