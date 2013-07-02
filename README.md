@@ -143,6 +143,9 @@ and how many were hit into play. To do this, we'll use a *group()* function inst
        initial: {sum: 0}, 
        reduce: function(doc, prev) { prev.sum += 1}
     });
+    
+The results of the query above are...
+
     [
 	    {
 		    "type" : "B",
