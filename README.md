@@ -181,8 +181,18 @@ First we'll need to find Joe Mauer's AtBat ID.
 Now that we know his ID is *408045*, we can query the *atbats* collection for the data we need. Notice that I preserved the *id* property
 from the MLB data and didn't try to fit that in the MongoDB *_id* field.
 
-TODO
- 
+We'll run two queries, one for total at-bats with two strikes and one for total hits.
+
+    > db.atbats.find({"batter":408045,"start_tfs_zulu":{$gte:new Date(2013,0,1), $lt:new Date(2014,0,1)}, "s":{$gte:2}, "event":/Single|Double|Triple|Home Run/}).count();
+    54
+    > db.atbats.find({"batter":408045,"start_tfs_zulu":{$gte:new Date(2013,0,1), $lt:new Date(2014,0,1)}, "s":{$gte:2}, "event":{$not:/Walk|Sacrifice/}}).count();
+    183
+
+The queries tell us that Joe Mauer is 54 for 183, or *.295* in 2013 when he has two strikes. Notice that we used *$gte:2* since the at-bat
+will be reported to have three strikes when the batter strikes out, and we certainly want to include that.
+
+The example above would have been much more performant better with a MongoDB aggregate $match and a $group that aggregated the at-bats and hits together. I kept this as two queries for simplicity. For more information on MongoDB aggregation, go here http://docs.mongodb.org/manual/reference/aggregation/
+
 ---
 
 ## Why MongoDB?
