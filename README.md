@@ -191,7 +191,9 @@ We'll run two queries, one for total at-bats with two strikes and one for total 
 The queries tell us that Joe Mauer is 54 for 183, or *.295* in 2013 when he has two strikes. Notice that we used *$gte:2* since the at-bat
 will be reported to have three strikes when the batter strikes out, and we certainly want to include that.
 
-The example above would have been much more performant better with a MongoDB aggregate $match and a $group that aggregated the at-bats and hits together. I kept this as two queries for simplicity. For more information on MongoDB aggregation, go here http://docs.mongodb.org/manual/reference/aggregation/
+The example above would have been much more performant with a MongoDB aggregate $match and a $group that aggregated 
+the at-bats and hits together. I kept this as two queries for simplicity. For more information on MongoDB aggregation, 
+go here http://docs.mongodb.org/manual/reference/aggregation/
 
 ---
 
