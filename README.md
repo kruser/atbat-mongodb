@@ -213,7 +213,10 @@ Additionally MongoDB has built-in support for cloud scaling and map-reduce funct
 in the Mongo shell, and even in a map-reduce setup.
 
 ---
+## Contribute
+Fork my repo, please! I accept pull requests so let's chat if you're interested in contributing.
 
+---
 ## Future
 ### Speed
 MongoDB is fast on inserts, 99% of the time in running this program is spent waiting for HTTP GET requests to return from the mlb servers.
