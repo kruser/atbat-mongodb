@@ -218,9 +218,9 @@ sub _save_game_data
 		my $inningsXml = $this->_get_xml_page($inningsUrl);
 		if ($inningsXml)
 		{
-			$this->_save_at_bats( XMLin( $inningsXml, KeyAttr => {}, ForceArray => [ 'inning', 'atbat' ] ),
+			$this->_save_at_bats( XMLin( $inningsXml, KeyAttr => {}, ForceArray => [ 'inning', 'atbat', 'runner' ] ),
 				$shallowGameInfo );
-			$this->_save_pitches( XMLin( $inningsXml, KeyAttr => {}, ForceArray => [ 'inning', 'atbat', 'pitch' ] ),
+			$this->_save_pitches( XMLin( $inningsXml, KeyAttr => {}, ForceArray => [ 'inning', 'atbat', 'runner', 'pitch' ] ),
 				$shallowGameInfo );
 		}
 
