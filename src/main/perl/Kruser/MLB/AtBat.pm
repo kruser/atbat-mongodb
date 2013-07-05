@@ -396,7 +396,7 @@ sub _save_at_bats
 					$atbat->{'game'}           = $shallowGameInfo,;
 					$atbat->{'start_tfs_zulu'} = _convert_to_datetime( $atbat->{'start_tfs_zulu'} );
 
-					_inject_baserunners( $atbat, $events, 'top', $inning->{num} );
+					#_inject_baserunners( $atbat, $events, 'top', $inning->{num} );
 					push( @allAtBats, $atbat );
 				}
 			}
@@ -414,7 +414,7 @@ sub _save_at_bats
 					};
 					$atbat->{'game'}           = $shallowGameInfo,;
 					$atbat->{'start_tfs_zulu'} = _convert_to_datetime( $atbat->{'start_tfs_zulu'} );
-					_inject_baserunners( $atbat, $events, 'bottom', $inning->{num} );
+					#_inject_baserunners( $atbat, $events, 'bottom', $inning->{num} );
 					push( @allAtBats, $atbat );
 				}
 			}
