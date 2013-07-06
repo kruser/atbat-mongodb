@@ -218,23 +218,9 @@ sub _save_game_data
 		my $inningsXml = $this->_get_xml_page($inningsUrl);
 		if ($inningsXml)
 		{
-			my $eventsUrl = "$dayUrl/gid_$gameId/game_events.xml";
-			$logger->debug("Getting game events from $eventsUrl");
-			my $eventsXml = $this->_get_xml_page($eventsUrl);
-			my $eventsObj;
-			if ($eventsXml)
-			{
-				$eventsObj = XMLin(
-					$eventsXml,
-					KeyAttr    => { atbat     => 'num', inning => 'num' },
-					ForceArray => [ 'inning', 'atbat',  'pitch' ]
-				  ),
-				  ;
-			}
-
 			$this->_save_at_bats(
 				XMLin( $inningsXml, KeyAttr => {}, ForceArray => [ 'inning', 'atbat', 'runner', 'action', 'po' ] ),
-				$shallowGameInfo, $eventsObj );
+				$shallowGameInfo );
 			$this->_save_pitches(
 				XMLin( $inningsXml, KeyAttr => {}, ForceArray => [ 'inning', 'atbat', 'runner', 'pitch' ] ),
 				$shallowGameInfo );
@@ -366,7 +352,6 @@ sub _save_pitches
 #
 # @param innings - the object representing all innings
 # @param shallowGame - the shallow game data that we'll embed in each at-bat
-# @param events - contains higher level information about each at-bat, including the runner positions to start the at-bat
 # @private
 ##
 sub _save_at_bats
@@ -374,7 +359,6 @@ sub _save_at_bats
 	my $this            = shift;
 	my $inningsObj      = shift;
 	my $shallowGameInfo = shift;
-	my $events          = shift;
 
 	my @allAtBats = ();
 	if ( $inningsObj && $inningsObj->{'inning'} )
@@ -384,39 +368,13 @@ sub _save_at_bats
 			if ( $inning->{top} && $inning->{top}->{atbat} )
 			{
 				my @atbats = @{ $inning->{top}->{atbat} };
-				foreach my $atbat (@atbats)
-				{
-					undef $atbat->{'pitch'};
-					$atbat->{'batter_team'}  = $inning->{'away_team'};
-					$atbat->{'pitcher_team'} = $inning->{'home_team'};
-					$atbat->{'inning'}       = {
-						type   => 'top',
-						number => $inning->{num},
-					};
-					$atbat->{'game'}           = $shallowGameInfo,;
-					$atbat->{'start_tfs_zulu'} = _convert_to_datetime( $atbat->{'start_tfs_zulu'} );
+				$this->_save_at_bats_for_inning( \@atbats, $inning, 'top', $shallowGameInfo, \@allAtBats );
 
-					#_inject_baserunners( $atbat, $events, 'top', $inning->{num} );
-					push( @allAtBats, $atbat );
-				}
 			}
 			if ( $inning->{bottom} && $inning->{bottom}->{atbat} )
 			{
 				my @atbats = @{ $inning->{bottom}->{atbat} };
-				foreach my $atbat (@atbats)
-				{
-					undef $atbat->{'pitch'};
-					$atbat->{'batter_team'}  = $inning->{'home_team'};
-					$atbat->{'pitcher_team'} = $inning->{'away_team'};
-					$atbat->{'inning'}       = {
-						type   => 'bottom',
-						number => $inning->{num},
-					};
-					$atbat->{'game'}           = $shallowGameInfo,;
-					$atbat->{'start_tfs_zulu'} = _convert_to_datetime( $atbat->{'start_tfs_zulu'} );
-					#_inject_baserunners( $atbat, $events, 'bottom', $inning->{num} );
-					push( @allAtBats, $atbat );
-				}
+				$this->_save_at_bats_for_inning( \@atbats, $inning, 'bottom', $shallowGameInfo, \@allAtBats );
 			}
 		}
 	}
@@ -424,55 +382,56 @@ sub _save_at_bats
 }
 
 ##
-# Browse through the events list and get the baserunner positions for the given at-bat
+# Handles persisting all at bats in an array that represents
+# the top or bottom half of an inning.
+# 
+# The processed results are pushed on the $aggregateAtBats array
+# and are assumed to be persisted by the calling method
+#
+# @param atBats - the array of bats
+# @param inning - the inning details 
+# @param inningSide - (top|bottom), the side of the inning 
+# @param shallowGameInfo - an arbitrary game object that we'll stick in each at-bat
+# @param aggregateAtBats - an array for all of the at-bats that the caller will be aggregating, presumedly for storage
 ##
-sub _inject_baserunners
+sub _save_at_bats_for_inning
 {
-	my $atbat        = shift;
-	my $events       = shift;
-	my $topOrBottom  = shift;
-	my $inningNumber = shift;
+	my $this            = shift;
+	my $atbats          = shift;
+	my $inning          = shift;
+	my $inningSide      = shift;
+	my $shallowGameInfo = shift;
+	my $aggregateAtBats = shift;
 
-	if (   $events
-		&& $events->{'inning'}
-		&& $events->{'inning'}->{$inningNumber}
-		&& $events->{'inning'}->{$inningNumber}->{$topOrBottom}
-		&& $events->{'inning'}->{$inningNumber}->{$topOrBottom}->{'atbat'}
-		&& $events->{'inning'}->{$inningNumber}->{$topOrBottom}->{'atbat'}->{ $atbat->{num} } )
+	my $previousAtBat = undef;
+	foreach my $atbat (@{$atbats})
 	{
-		my $eventAb = $events->{'inning'}->{$inningNumber}->{$topOrBottom}->{'atbat'}->{ $atbat->{num} };
-
-		my $runnerPositions = {
-			end => {
-				b1 => $eventAb->{'b1'},
-				b2 => $eventAb->{'b2'},
-				b3 => $eventAb->{'b3'},
-			}
+		undef $atbat->{'pitch'};
+		$atbat->{'batter_team'}  = $inningSide eq 'top' ? $inning->{'away_team'} : $inning->{'home_team'};
+		$atbat->{'pitcher_team'} = $inningSide eq 'top' ? $inning->{'home_team'} : $inning->{'away_team'};
+		$atbat->{'inning'}       = {
+			type   => $inningSide,
+			number => $inning->{num},
 		};
-
-		my $previousAbNumber = int( $atbat->{num} ) - 1;
-		my $previousAb       = $events->{'inning'}->{$inningNumber}->{$topOrBottom}->{'atbat'}->{$previousAbNumber};
-		if ($previousAb)
+		$atbat->{'game'}           = $shallowGameInfo,;
+		$atbat->{'start_tfs_zulu'} = _convert_to_datetime( $atbat->{'start_tfs_zulu'} );
+		if ( !$atbat->{'runner'} && $previousAtBat && $previousAtBat->{'runner'} )
 		{
-
-			# this will fail gracefully if the previous at-bat wasn't in the same inning
-			$runnerPositions->{'start'} = {
-				b1 => $previousAb->{'b1'},
-				b2 => $previousAb->{'b2'},
-				b3 => $previousAb->{'b3'},
-			};
+			my @previousRunners = @{ $previousAtBat->{'runner'} };
+			$atbat->{'runner'} = ();
+			foreach my $previousRunner (@previousRunners)
+			{
+				my $runner = dclone($previousRunner);
+				if ( $runner->{'end'} )
+				{
+					$runner->{'start'} = $runner->{'end'};
+					$runner->{'event'} = '';
+					push( @{$atbat->{'runner'}}, $runner );
+				}
+			}
 		}
-		else
-		{
-			$runnerPositions->{'start'} = {
-				b1 => '',
-				b2 => '',
-				b3 => '',
-			};
-		}
-
-		$atbat->{'bases'} = $runnerPositions;
-		$atbat->{'rbi'}   = $eventAb->{'rbi'};
+		push( @{$aggregateAtBats}, $atbat );
+		$previousAtBat = $atbat;
 	}
 }
 
