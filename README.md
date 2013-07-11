@@ -59,10 +59,14 @@ You don't need to configure anything, just install Mongo and start the mongod pr
 
 ## Your First Run
 When you're first getting setup and your database is empty, you'll first need to sync a specific day, month or year. 
-I suggest you sync the current month, which takes about 10-20 minutes, give or take several minutes depending on your 
-Internet connection.
+I suggest you sync the current month, which takes about 5-10 minutes depending on your Internet connection.
 
     ./atbatETL.pl --year=2013 --month=06
+
+If you're on a fast pipe, you might as well just do a full year. I can grab a year in about 40 minutes. Running
+the program like this will grab an entire year.
+
+    ./atbatETL.pl --year=2013
 
 Note that the program logs quite a bit of interesting output to the log filename listed in the *log4perl.conf* file, which is */var/log/mlbatbat.log* by
 default. On linux or MacOS you may need to set the permissions on this file or run the program with sudo to ensure you can write the log
