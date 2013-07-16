@@ -256,7 +256,7 @@ sub _save_game_data
 		if ($inningsXml)
 		{
 			$this->_save_at_bats(
-				XMLin( $inningsXml, KeyAttr => {}, ForceArray => [ 'inning', 'atbat', 'runner', 'action', 'po' ] ),
+				XMLin( $inningsXml, KeyAttr => {}, ForceArray => [ 'inning', 'atbat', 'runner', 'action', 'pitch', 'po' ] ),
 				$shallowGameInfo, $fallbackDate );
 			$this->_save_pitches(
 				XMLin( $inningsXml, KeyAttr => {}, ForceArray => [ 'inning', 'atbat', 'runner', 'pitch' ] ),
@@ -441,78 +441,10 @@ sub _save_at_bats_for_inning
 	my $fallbackDate    = shift;
 
 	my @atbats = @{ $inning->{$inningSide}->{'atbat'} };
-
-	my $pinchRunners = {};
-	if ( $inning->{$inningSide}->{'action'} )
-	{
-		my @actions = @{ $inning->{$inningSide}->{'action'} };
-		foreach my $action (@actions)
-		{
-			if ( $action->{'des'} =~ /Pinch runner\s+.+?\s+replaces\s+(.+?)\s+(\w+)\./i )
-			{
-				print "Need to account for pinch runner for $1 $2\n";
-				my $replacedPlayerId = $this->_find_player( $1, $2 );
-				if ($replacedPlayerId)
-				{
-					$pinchRunners->{$replacedPlayerId} = $action->{player};
-				}
-			}
-		}
-	}
-
-	my @baseRunners = ();
 	foreach my $atbat (@atbats)
 	{
 		my $atBatEvent = $atbat->{'event'};
 
-		# sync start and end bases for inherited runners
-		foreach my $inheritedRunner (@baseRunners)
-		{
-			$inheritedRunner->{'start'} = $inheritedRunner->{'end'};
-			if (exists $pinchRunners->{$inheritedRunner->{id}})
-			{
-				$inheritedRunner->{id} = $pinchRunners->{$inheritedRunner->{id}};		
-			}
-		}
-
-		##
-		# update any moved runners, only giving credit to the
-		# batter if the runner event matches the atbat event
-		##
-		if ( $atbat->{'runner'} )
-		{
-			my @movedRunners = @{ $atbat->{'runner'} };
-			foreach my $movedRunner (@movedRunners)
-			{
-				my $addToRunners = 1;
-
-	   # The MLB data has a bug where they list the runner event associated with the wrong thing, in this case a pickoff
-	   # even though a hit may have been what advanced the runner
-				if (   ( $movedRunner->{'event'} =~ /^Pickoff\s*Attempt/i )
-					&& ( $movedRunner->{'start'} ne $movedRunner->{'end'} ) )
-				{
-					$movedRunner->{'event'} = $atBatEvent;
-				}
-
-				foreach my $inheritedRunner (@baseRunners)
-				{
-					if ( $inheritedRunner->{'id'} eq $movedRunner->{'id'} )
-					{
-						$inheritedRunner->{'start'} =
-						  ( $movedRunner->{'event'} eq $atBatEvent ) ? $movedRunner->{'start'} : $movedRunner->{'end'};
-						$inheritedRunner->{'end'}    = $movedRunner->{'end'};
-						$inheritedRunner->{'event'}  = $movedRunner->{'event'};
-						$inheritedRunner->{'rbi'}    = $movedRunner->{'rbi'} if $movedRunner->{'rbi'};
-						$inheritedRunner->{'score'}  = $movedRunner->{'score'} if $movedRunner->{'score'};
-						$inheritedRunner->{'earned'} = $movedRunner->{'earned'} if $movedRunner->{'earned'};
-						$addToRunners                = 0;
-					}
-				}
-				push( @baseRunners, $movedRunner ) if $addToRunners;
-			}
-		}
-
-		undef $atbat->{'pitch'};
 		$atbat->{'batter_team'}  = $inningSide eq 'top' ? $inning->{'away_team'} : $inning->{'home_team'};
 		$atbat->{'pitcher_team'} = $inningSide eq 'top' ? $inning->{'home_team'} : $inning->{'away_team'};
 		$atbat->{'inning'}       = {
@@ -521,19 +453,7 @@ sub _save_at_bats_for_inning
 		};
 		$atbat->{'game'}           = $shallowGameInfo,;
 		$atbat->{'start_tfs_zulu'} = _convert_to_datetime( $atbat->{'start_tfs_zulu'}, $fallbackDate );
-		$atbat->{'runner'}         = dclone( \@baseRunners );
 		push( @{$aggregateAtBats}, $atbat );
-
-		# Remove plated or out runners for the next at-bat
-		my @endRunners = ();
-		foreach my $runner (@baseRunners)
-		{
-			if ( $runner->{'end'} )
-			{
-				push( @endRunners, $runner );
-			}
-		}
-		@baseRunners = @endRunners;
 	}
 }
 
