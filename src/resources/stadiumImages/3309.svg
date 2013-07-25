@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 15.1.0, SVG Export Plug-In  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" [
+	<!ENTITY ns_flows "http://ns.adobe.com/Flows/1.0/">
+]>
+<svg version="1.1"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:a="http://ns.adobe.com/AdobeSVGViewerExtensions/3.0/"
+	 x="0px" y="0px" width="250px" height="250px" viewBox="-10.848 -14.964 250 250"
+	 overflow="visible" enable-background="new -10.848 -14.964 250 250" xml:space="preserve">
+<defs>
+</defs>
+<ellipse fill="#AA8D49" cx="113.942" cy="161.482" rx="5.053" ry="5.017"/>
+<path fill="#AA8D49" d="M155.228,152.302l-1.169-2.819c0,0-10.356-27.532-39.422-27.698c-28.396-0.162-39.086,28.527-39.086,28.527
+	l-1.837,1.99l8.853,8.956l26.305,26.074c0,0-1.354,8.573,5.433,8.589c7.018,0.017,5.583-8.029,5.512-9.121l24.722-24.381
+	L155.228,152.302z M135.351,165.238l-19.043,18.741l-4.287,0.144l-19.013-18.88v-5.101l19.667-18.53l3.299,0.074l19.377,19.24
+	V165.238z"/>
+<rect x="111.807" y="160.512" fill="#FFFFFF" width="4.324" height="1.462"/>
+<rect x="112.788" y="136.922" transform="matrix(0.7071 -0.7071 0.7071 0.7071 -64.4235 121.4005)" fill="#FFFFFF" width="3.088" height="3.089"/>
+<rect x="88.421" y="160.281" transform="matrix(0.7071 -0.7071 0.7071 0.7071 -88.0778 111.0127)" fill="#FFFFFF" width="3.088" height="3.089"/>
+<rect x="136.784" y="160.385" transform="matrix(0.7071 -0.7071 0.7071 0.7071 -73.986 145.2404)" fill="#FFFFFF" width="3.088" height="3.089"/>
+<rect x="112.517" y="188.163" fill="#FFFFFF" width="3.088" height="3.089"/>
+<path fill="#AA8D49" stroke="#000000" d="M101.099,202.931L55.574,161.55l-21.667-38.923l-0.605-11.223L11.868,90.788l26.845-45.421
+	l37.464-19.511l3.966,4.335l31.936-18.064l89.099,40.466l15.761,37.562l-22.611,22.283l-0.7,11.25c0,0-16.414,36.913-17.378,38.599
+	l-47.209,40.644C130.912,200.369,116.54,218.132,101.099,202.931z"/>
+<path fill="#0A823C" d="M102.544,199.066L68.34,169.657l-10.598-11.267l-19.5-37.45l0.849-12.384L19.597,89.034l23.375-41.499
+	l31.872-16.62l5.781,5.299l31.455-19.029l85.851,39.021L210.626,88.6l-20.219,19.624l-1.22,13.537l-16.184,38.751l-45.891,38.555
+	C127.114,199.066,115.866,213.267,102.544,199.066z"/>
+<text transform="matrix(1 0 0 1 0 81.2695)" fill="#FF0000" font-family="'Arial-BoldMT'" font-size="10">336</text>
+<text transform="matrix(1 0 0 1 37.583 34.0654)" fill="#FF0000" font-family="'Arial-BoldMT'" font-size="10">377</text>
+<text transform="matrix(1 0 0 1 102.6343 8.5801)" fill="#FF0000" font-family="'Arial-BoldMT'" font-size="10">402</text>
+<text transform="matrix(1 0 0 1 164.2358 32.708)" fill="#FF0000" font-family="'Arial-BoldMT'" font-size="10">370</text>
+<text transform="matrix(1 0 0 1 214.0991 79.293)" fill="#FF0000" font-family="'Arial-BoldMT'" font-size="10">335</text>
+<polygon fill="#E5E5E5" points="208.357,170.414 213.546,183.718 216.14,184.437 "/>
+<polygon fill="#DDDDDD" points="202.275,192.493 213.558,183.742 216.154,184.455 "/>
+<polygon fill="#999999" points="202.26,192.45 215.531,187.176 216.234,184.576 "/>
+<polygon fill="#727272" points="208.308,170.406 216.939,181.781 216.197,184.372 "/>
+<polygon fill="#DDDDDD" points="230.183,176.69 216.88,181.879 216.159,184.475 "/>
+<polygon fill="#D1D1D1" points="224.264,198.515 215.54,187.212 216.258,184.617 "/>
+<polygon fill="#999999" points="230.167,176.66 218.808,185.312 216.218,184.577 "/>
+<g>
+	<text transform="matrix(0.8705 -0.4922 0.4922 0.8705 205.9082 171.751)" font-family="'Times-Roman'" font-size="7.6325">N</text>
+</g>
+<g>
+	<text transform="matrix(0.8705 -0.4922 0.4922 0.8705 197.8193 197.9648)" font-family="'Times-Roman'" font-size="7.6325">W</text>
+</g>
+<g>
+	<text transform="matrix(0.8705 -0.4922 0.4922 0.8705 225.29 204.3057)" font-family="'Times-Roman'" font-size="7.6325">S</text>
+</g>
+<g>
+	<text transform="matrix(0.8705 -0.4922 0.4922 0.8705 231.2744 179.0098)" font-family="'Times-Roman'" font-size="7.6325">E</text>
+</g>
+<circle fill="#A98C48" cx="114.742" cy="162.738" r="5.042"/>
+<path fill="#A98C48" d="M144.642,158.779l3-3.666c0,0-9.381-26.161-32.999-26c-24.027,0.163-34.667,26-34.667,26l3.667,3
+	l-2.443,2.93l25.152,25.181c0,0-1.321,11.223,7.816,11.223s7.909-10.366,7.837-11.465l24.689-24.609L144.642,158.779z
+	 M133.486,165.529l-16.9,16.901h-4.634L94.983,165.46v-5.126l16.957-16.956h4.657l16.889,16.887V165.529z"/>
+<rect x="112.326" y="161.713" fill="#FFFFFF" stroke="#FFFFFF" width="3.98" height="1.551"/>
+<rect x="87.566" y="159.59" transform="matrix(0.7073 -0.7069 0.7069 0.7073 -87.8185 110.1431)" fill="#FFFFFF" stroke="#FFFFFF" width="3.045" height="3.043"/>
+<rect x="138.04" y="159.59" transform="matrix(0.7073 -0.7069 0.7069 0.7073 -73.0429 145.8259)" fill="#FFFFFF" stroke="#FFFFFF" width="3.045" height="3.043"/>
+<rect x="112.803" y="134.353" transform="matrix(0.7069 -0.7073 0.7073 0.7069 -62.596 120.6773)" fill="#FFFFFF" stroke="#FFFFFF" width="3.045" height="3.044"/>
+<polygon fill="#FFFFFF" stroke="#FFFFFF" points="115.852,186.92 114.314,188.441 112.806,186.92 112.806,185.397 115.852,185.397 
+	"/>
+<polyline fill="none" stroke="#FFFFFF" stroke-width="1.5" points="223.718,79.287 114.33,188.502 7.093,81.223 "/>
+</svg>
