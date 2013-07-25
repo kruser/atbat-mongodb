@@ -248,19 +248,34 @@ sub _save_game_data
 				}
 			}
 		}
+
 		$this->{storage}->save_game($game);
 
 		my $inningsUrl = "$dayUrl/gid_$gameId/inning/inning_all.xml";
 		$logger->debug("Getting at-bat details from $inningsUrl");
 		my $inningsXml = $this->_get_xml_page($inningsUrl);
-		if ($inningsXml)
+
+		my $hitsUrl = "$dayUrl/gid_$gameId/inning/inning_hit.xml";
+		$logger->debug("Getting hit details from $hitsUrl");
+		my $hitsXml = $this->_get_xml_page($hitsUrl);
+
+		if ( $inningsXml && $hitsXml )
 		{
 			$this->_save_at_bats(
-				XMLin( $inningsXml, KeyAttr => {}, ForceArray => [ 'inning', 'atbat', 'runner', 'action', 'pitch', 'po' ] ),
-				$shallowGameInfo, $fallbackDate );
+				XMLin(
+					$inningsXml,
+					KeyAttr    => {},
+					ForceArray => [ 'inning', 'atbat', 'runner', 'action', 'pitch', 'po' ]
+				),
+				XMLin( $hitsXml, KeyAttr => {}, ForceArray => ['hip'] ),
+				$shallowGameInfo,
+				$fallbackDate
+			);
 			$this->_save_pitches(
 				XMLin( $inningsXml, KeyAttr => {}, ForceArray => [ 'inning', 'atbat', 'runner', 'pitch' ] ),
-				$shallowGameInfo, $fallbackDate );
+				XMLin( $hitsXml,    KeyAttr => {}, ForceArray => ['hip'] ),
+				$shallowGameInfo, $fallbackDate
+			);
 		}
 	}
 
@@ -275,6 +290,7 @@ sub _save_game_data
 # a little code redundancy.
 #
 # @param innings - the object representing all innings
+# @param hitBalls - the object representing all hit balls
 # @param shallowGame - the shallow game data that we'll embed in each pitch
 # @param fallbackDate - the day to use if we don't have one per pitch
 # @private
@@ -283,6 +299,7 @@ sub _save_pitches
 {
 	my $this            = shift;
 	my $inningsObj      = shift;
+	my $hitBalls        = shift;
 	my $shallowGameInfo = shift;
 	my $fallbackDate    = shift;
 
@@ -292,67 +309,70 @@ sub _save_pitches
 	{
 		foreach my $inning ( @{ $inningsObj->{inning} } )
 		{
-			if ( $inning->{top} && $inning->{top}->{atbat} )
+			$this->_save_pitches_from_half_inning( $inning, 'top', $hitBalls, $shallowGameInfo, $fallbackDate, \@allPitches );
+			$this->_save_pitches_from_half_inning( $inning, 'bottom', $hitBalls, $shallowGameInfo, $fallbackDate, \@allPitches );
+		}
+	}
+	$this->{storage}->save_pitches( \@allPitches );
+}
+
+##
+# Saves all pitches from a 1/2 inning's at-bats
+#
+sub _save_pitches_from_half_inning
+{
+	my $this             = shift;
+	my $inning           = shift;
+	my $inningSide       = shift;
+	my $hitBalls         = shift;
+	my $shallowGameInfo  = shift;
+	my $fallbackDate     = shift;
+	my $aggregatePitches = shift;
+
+	if ( $inning->{$inningSide} && $inning->{$inningSide}->{atbat} )
+	{
+		my @atbats = @{ $inning->{$inningSide}->{atbat} };
+		foreach my $atbat (@atbats)
+		{
+			$atbat->{'batter_team'}    = ($inningSide eq 'top') ? $inning->{'away_team'} : $inning->{'home_team'};
+			$atbat->{'pitcher_team'}   = ($inningSide eq 'top') ? $inning->{'home_team'} : $inning->{'away_team'};
+			$atbat->{'start_tfs_zulu'} = _convert_to_datetime( $atbat->{'start_tfs_zulu'}, $fallbackDate );
+
+			my $shallowAtBat = dclone($atbat);
+			undef $shallowAtBat->{'pitch'};
+
+			if ( $atbat->{pitch} )
 			{
-				my @atbats = @{ $inning->{top}->{atbat} };
-				foreach my $atbat (@atbats)
+				my @pitches = @{ $atbat->{pitch} };
+
+				if ( $hitBalls->{'hip'} > 0 )
 				{
-					$atbat->{'batter_team'}    = $inning->{'away_team'};
-					$atbat->{'pitcher_team'}   = $inning->{'home_team'};
-					$atbat->{'start_tfs_zulu'} = _convert_to_datetime( $atbat->{'start_tfs_zulu'}, $fallbackDate );
-
-					my $shallowAtBat = dclone($atbat);
-					undef $shallowAtBat->{'pitch'};
-
-					if ( $atbat->{pitch} )
+					my $nextHIP = $hitBalls->{'hip'}[0];
+					if (   $nextHIP->{'inning'} eq $inning->{'num'}
+						&& $nextHIP->{'batter'} eq $atbat->{'batter'} )
 					{
-						my @pitches = @{ $atbat->{pitch} };
-						foreach my $pitch (@pitches)
-						{
-							$pitch->{'tfs_zulu'} = _convert_to_datetime( $pitch->{'tfs_zulu'}, $fallbackDate );
-							$pitch->{'game'}     = $shallowGameInfo;
-							$pitch->{'inning'}   = {
-								type   => 'top',
-								number => $inning->{num},
-							};
-							$pitch->{'atbat'} = $shallowAtBat;
-							push( @allPitches, $pitch );
-						}
+
+						# inject the hit ball on the last pitch of the at-bat
+						$pitches[-1]->{'hip'} = $nextHIP;
+						shift( @{ $hitBalls->{'hip'} } );
 					}
 				}
-			}
-			if ( $inning->{bottom} && $inning->{bottom}->{atbat} )
-			{
-				my @atbats = @{ $inning->{bottom}->{atbat} };
-				foreach my $atbat (@atbats)
+
+				foreach my $pitch (@pitches)
 				{
-					$atbat->{'batter_team'}    = $inning->{'home_team'};
-					$atbat->{'pitcher_team'}   = $inning->{'away_team'};
-					$atbat->{'start_tfs_zulu'} = _convert_to_datetime( $atbat->{'start_tfs_zulu'}, $fallbackDate );
-
-					my $shallowAtBat = dclone($atbat);
-					undef $shallowAtBat->{'pitch'};
-
-					if ( $atbat->{pitch} )
-					{
-						my @pitches = @{ $atbat->{pitch} };
-						foreach my $pitch (@pitches)
-						{
-							$pitch->{'tfs_zulu'} = _convert_to_datetime( $pitch->{'tfs_zulu'}, $fallbackDate );
-							$pitch->{'game'}     = $shallowGameInfo;
-							$pitch->{'inning'}   = {
-								type   => 'bottom',
-								number => $inning->{num},
-							};
-							$pitch->{'atbat'} = $shallowAtBat;
-							push( @allPitches, $pitch );
-						}
-					}
+					$pitch->{'tfs_zulu'} = _convert_to_datetime( $pitch->{'tfs_zulu'}, $fallbackDate );
+					$pitch->{'game'}     = $shallowGameInfo;
+					$pitch->{'inning'}   = {
+						type   => $inningSide,
+						number => $inning->{num},
+					};
+					$pitch->{'atbat'} = $shallowAtBat;
+					push( @{$aggregatePitches}, $pitch );
 				}
 			}
 		}
 	}
-	$this->{storage}->save_pitches( \@allPitches );
+
 }
 
 ##
@@ -360,7 +380,8 @@ sub _save_pitches
 # data only. We're purposefully stripping out the pitches
 # as those will be saved in another space
 #
-# @param innings - the object representing all innings
+# @param inningsObj - the object representing all innings
+# @param hitsObj - the object representing all hit balls
 # @param shallowGame - the shallow game data that we'll embed in each at-bat
 # @param fallbackDate - the date to use on the atbats if we don't have one from MLB
 # @private
@@ -369,6 +390,7 @@ sub _save_at_bats
 {
 	my $this            = shift;
 	my $inningsObj      = shift;
+	my $hitsObj         = shift;
 	my $shallowGameInfo = shift;
 	my $fallbackDate    = shift;
 
@@ -379,12 +401,14 @@ sub _save_at_bats
 		{
 			if ( $inning->{top} && $inning->{top}->{atbat} )
 			{
-				$this->_save_at_bats_for_inning( $inning, 'top', $shallowGameInfo, \@allAtBats, $fallbackDate );
+				$this->_save_at_bats_for_inning( $inning, $hitsObj, 'top', $shallowGameInfo, \@allAtBats,
+					$fallbackDate );
 
 			}
 			if ( $inning->{bottom} && $inning->{bottom}->{atbat} )
 			{
-				$this->_save_at_bats_for_inning( $inning, 'bottom', $shallowGameInfo, \@allAtBats, $fallbackDate );
+				$this->_save_at_bats_for_inning( $inning, $hitsObj, 'bottom', $shallowGameInfo, \@allAtBats,
+					$fallbackDate );
 			}
 		}
 	}
@@ -402,10 +426,10 @@ sub _find_player
 	my $this      = shift;
 	my $firstName = shift;
 	my $lastName  = shift;
-	
-	for my $player (values %{$this->{players}})
+
+	for my $player ( values %{ $this->{players} } )
 	{
-		if ($player->{last} eq $lastName && $player->{first} eq $firstName)
+		if ( $player->{last} eq $lastName && $player->{first} eq $firstName )
 		{
 			return $player->{id};
 		}
@@ -426,6 +450,7 @@ sub _find_player
 #
 # @param atBats - the array of bats
 # @param inning - the inning details
+# @param hitBalls - the hit balls for the game so we can pull each hit an inject it as needed
 # @param inningSide - (top|bottom), the side of the inning
 # @param shallowGameInfo - an arbitrary game object that we'll stick in each at-bat
 # @param aggregateAtBats - an array for all of the at-bats that the caller will be aggregating, presumedly for storage
@@ -435,6 +460,7 @@ sub _save_at_bats_for_inning
 {
 	my $this            = shift;
 	my $inning          = shift;
+	my $hitBalls        = shift;
 	my $inningSide      = shift;
 	my $shallowGameInfo = shift;
 	my $aggregateAtBats = shift;
@@ -453,6 +479,16 @@ sub _save_at_bats_for_inning
 		};
 		$atbat->{'game'}           = $shallowGameInfo,;
 		$atbat->{'start_tfs_zulu'} = _convert_to_datetime( $atbat->{'start_tfs_zulu'}, $fallbackDate );
+
+		if ( $hitBalls->{'hip'} > 0 )
+		{
+			my $nextHIP = $hitBalls->{'hip'}[0];
+			if ( $nextHIP->{'inning'} eq $inning->{'num'} && $nextHIP->{'batter'} eq $atbat->{'batter'} )
+			{
+				$atbat->{'hip'} = $nextHIP;
+				shift( @{ $hitBalls->{'hip'} } );
+			}
+		}
 		push( @{$aggregateAtBats}, $atbat );
 	}
 }
