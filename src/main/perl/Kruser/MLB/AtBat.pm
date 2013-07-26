@@ -14,6 +14,7 @@ use Data::Dumper;
 use Date::Parse;
 use DateTime;
 use Storable 'dclone';
+use Kruser::MLB::HitAdjuster;
 
 my $browser = LWP::UserAgent->new( ssl_opts => { verify_hostname => 0 } );
 my $logger  = Log::Log4perl->get_logger("Kruser::MLB::AtBat");
@@ -262,7 +263,7 @@ sub _save_game_data
 
 		if ( $inningsXml && $hitsXml )
 		{
-			my $hitsForAtBats = $this->_add_hit_angles(XMLin( $hitsXml, KeyAttr => {}, ForceArray => ['hip'] ));
+			my $hitsForAtBats = $this->_add_hit_angles( XMLin( $hitsXml, KeyAttr => {}, ForceArray => ['hip'] ) );
 			$this->_save_at_bats(
 				XMLin(
 					$inningsXml,
@@ -273,12 +274,11 @@ sub _save_game_data
 				$shallowGameInfo,
 				$fallbackDate
 			);
-			
-			my $hitsForPitches = $this->_add_hit_angles(XMLin( $hitsXml, KeyAttr => {}, ForceArray => ['hip'] ));
+
+			my $hitsForPitches = $this->_add_hit_angles( XMLin( $hitsXml, KeyAttr => {}, ForceArray => ['hip'] ) );
 			$this->_save_pitches(
 				XMLin( $inningsXml, KeyAttr => {}, ForceArray => [ 'inning', 'atbat', 'runner', 'pitch' ] ),
-				$hitsForPitches, $shallowGameInfo, $fallbackDate
-			);
+				$hitsForPitches, $shallowGameInfo, $fallbackDate );
 		}
 	}
 
@@ -291,10 +291,19 @@ sub _save_game_data
 ##
 sub _add_hit_angles
 {
-	my $this = shift;	
-	my $hipList = shift;	
+	my $this    = shift;
+	my $hipList = shift;
+
+	my $hitAdjuster = new Kruser::MLB::HitAdjuster();
 	
-	# TODO: cycle through hitList and inject angles
+	if ( $hipList->{hip} )
+	{
+		for my $hip ( @{ $hipList->{hip} } )
+		{
+			$hip->{angle} = $hitAdjuster->get_hit_angle($hip);
+			$hip->{estimatedDistance} = $hitAdjuster->estimate_hit_distance($hip);
+		}
+	}
 }
 
 ##
