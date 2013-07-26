@@ -4,6 +4,9 @@ package Kruser::MLB::HitAdjuster;
 # A module that provides methods for converting
 # the MLB X/Y hit coordinates into angles and distances
 #
+# TODO: the methods here may really require homeX, homeY and distanceMultiplier settings
+# per ballpark.
+#
 # @author kruser
 ##
 use strict;
@@ -19,8 +22,9 @@ sub new
 	my $package = ref($proto) || $proto;
 
 	my $this = {
-		homeX => 125.1,
-		homeY => 204.5,
+		homeX              => 125.1,
+		homeY              => 204.5,
+		distanceMultiplier => 2.3142,
 	};
 
 	foreach my $key ( keys %params )
@@ -50,12 +54,12 @@ sub get_hit_angle
 
 	my $x = $hit->{x};
 	my $y = $hit->{y};
-	
+
 	my $deltaX = $this->{homeX} - $x;
 	my $deltaY = $this->{homeY} - $y;
 
-	my $degrees = atan2($deltaY, $deltaX) * 180 / $PI;
-	my $rounded = sprintf("%.2f", $degrees);
+	my $degrees = atan2( $deltaY, $deltaX ) * 180 / $PI;
+	my $rounded = sprintf( "%.2f", $degrees );
 	return $rounded;
 }
 
@@ -74,13 +78,15 @@ sub estimate_hit_distance
 
 	my $x = $hit->{x};
 	my $y = $hit->{y};
-	
-	my $deltaX = $this->{homeX} - $x;
-	my $deltaY = $this->{homeY} - $y;
 
-	my $degrees = atan2($deltaY, $deltaX) * 180 / $PI;
-	my $rounded = sprintf("%.2f", $degrees);
-	return $rounded;
+	my $deltaX = abs( $this->{homeX} - $x );
+	my $deltaY = abs( $this->{homeY} - $y );
+
+	my $sideZ = sqrt( ( $deltaX**2 ) + ( $deltaY**2 ) );
+	my $distance = $sideZ * $this->{distanceMultiplier};
+	my $rounded = sprintf( "%.2f", $distance );
+	
+	return $rounded
 }
 
 1;
