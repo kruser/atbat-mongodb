@@ -262,24 +262,39 @@ sub _save_game_data
 
 		if ( $inningsXml && $hitsXml )
 		{
+			my $hitsForAtBats = $this->_add_hit_angles(XMLin( $hitsXml, KeyAttr => {}, ForceArray => ['hip'] ));
 			$this->_save_at_bats(
 				XMLin(
 					$inningsXml,
 					KeyAttr    => {},
 					ForceArray => [ 'inning', 'atbat', 'runner', 'action', 'pitch', 'po' ]
 				),
-				XMLin( $hitsXml, KeyAttr => {}, ForceArray => ['hip'] ),
+				$hitsForAtBats,
 				$shallowGameInfo,
 				$fallbackDate
 			);
+			
+			my $hitsForPitches = $this->_add_hit_angles(XMLin( $hitsXml, KeyAttr => {}, ForceArray => ['hip'] ));
 			$this->_save_pitches(
 				XMLin( $inningsXml, KeyAttr => {}, ForceArray => [ 'inning', 'atbat', 'runner', 'pitch' ] ),
-				XMLin( $hitsXml,    KeyAttr => {}, ForceArray => ['hip'] ),
-				$shallowGameInfo, $fallbackDate
+				$hitsForPitches, $shallowGameInfo, $fallbackDate
 			);
 		}
 	}
 
+}
+
+##
+# Cycles through a list of hit balls and use the X/Y coordinates to formulate an angle
+# of the hit. 0 degrees will be straight up the middle of the field. -45 degrees is the left
+# foul pole and 45 degress is the right foul pole.
+##
+sub _add_hit_angles
+{
+	my $this = shift;	
+	my $hipList = shift;	
+	
+	# TODO: cycle through hitList and inject angles
 }
 
 ##
