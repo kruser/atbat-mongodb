@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 15.1.0, SVG Export Plug-In  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" [
+	<!ENTITY ns_flows "http://ns.adobe.com/Flows/1.0/">
+]>
+<svg version="1.1"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:a="http://ns.adobe.com/AdobeSVGViewerExtensions/3.0/"
+	 x="0px" y="0px" width="250px" height="250px" viewBox="-9.063 -14.174 250 250"
+	 overflow="visible" enable-background="new -9.063 -14.174 250 250" xml:space="preserve">
+<defs>
+</defs>
+<g>
+	<text transform="matrix(1 0 0 1 0 77.8184)" fill="#FF0000" font-family="'Arial-BoldMT'" font-size="11">335</text>
+</g>
+<g>
+	<text transform="matrix(1 0 0 1 63.2451 19.8115)" fill="#FF0000" font-family="'Arial-BoldMT'" font-size="11">385</text>
+</g>
+<g>
+	<text transform="matrix(1 0 0 1 28.4365 45.8467)" fill="#FF0000" font-family="'Arial-BoldMT'" font-size="11">358</text>
+</g>
+<g>
+	<text transform="matrix(1 0 0 1 194.0586 41.3467)" fill="#FF0000" font-family="'Arial-BoldMT'" font-size="11">375</text>
+</g>
+<g>
+	<text transform="matrix(1 0 0 1 214.5879 79.3994)" fill="#FF0000" font-family="'Arial-BoldMT'" font-size="11">330</text>
+</g>
+<polygon fill="#E5E5E5" points="212.284,169.681 214.509,183.784 216.89,185.042 "/>
+<polygon fill="#DDDDDD" points="201.624,189.948 214.518,183.811 216.898,185.063 "/>
+<polygon fill="#999999" points="201.618,189.902 215.708,187.587 216.952,185.198 "/>
+<polygon fill="#727272" points="212.237,169.661 218.237,182.619 216.959,184.99 "/>
+<polygon fill="#DDDDDD" points="232.264,180.477 218.159,182.701 216.9,185.084 "/>
+<polygon fill="#D1D1D1" points="221.817,200.531 215.709,187.624 216.968,185.243 "/>
+<polygon fill="#999999" points="232.255,180.443 219.31,186.469 216.936,185.195 "/>
+<polygon fill="#727272" points="221.807,200.574 219.447,186.492 217.054,185.256 "/>
+<g>
+	<text transform="matrix(0.9556 -0.2948 0.2948 0.9556 209.7402 169.79)" font-family="'TimesNewRomanPSMT'" font-size="7.6316">N</text>
+</g>
+<g>
+	<text transform="matrix(0.9556 -0.2948 0.2948 0.9556 196.2256 193.6631)" font-family="'TimesNewRomanPSMT'" font-size="7.6316">W</text>
+</g>
+<g>
+	<text transform="matrix(0.9556 -0.2948 0.2948 0.9556 221.708 205.7285)" font-family="'TimesNewRomanPSMT'" font-size="7.6316">S</text>
+</g>
+<g>
+	<text transform="matrix(0.9556 -0.2948 0.2948 0.9556 232.9678 182.3037)" font-family="'TimesNewRomanPSMT'" font-size="7.6316">E</text>
+</g>
+<g>
+	<text transform="matrix(1 0 0 1 108.5376 11)" fill="#FF0000" font-family="'Arial-BoldMT'" font-size="11">408</text>
+</g>
+<g>
+	<text transform="matrix(1 0 0 1 154.2314 18.4307)" fill="#FF0000" font-family="'Arial-BoldMT'" font-size="11">398</text>
+</g>
+<path fill="#AA8D49" stroke="#000000" d="M216.894,90.178l-7.608-10.986l-0.024-8.431l-18.924-27.284l-13.36-3.57l-7.338-10.691
+	l-30.826-15.404h-35.701L24.81,64.417L13.687,89.906l37.073,35.973l7.927,30.277l27,37.605
+	c12.395,11.073,18.648,14.145,30.84,14.145c13.41,0,26.122-7.666,30.41-13c5.769-6.48,28.25-38.75,28.25-38.75l7.152-31.011
+	L216.894,90.178z"/>
+<path fill="#0A823C" d="M207.409,90.906l-5.791-9.131l-1.682-8.619l-17.095-22.735l-12.254-3.61l-6.901-10.646l-27.5-13.187h-30.75
+	L33.747,69.906L23.687,88.824l33.169,34.967l8.331,29.615l26.25,36.752c0,0,9.273,8.423,14.75,10.373s15.741,1.175,22.5-1.125
+	s13.5-8,13.5-8l26.75-38.5l6.482-28.561L207.409,90.906z"/>
+<circle fill="#A98C48" cx="116.526" cy="163.528" r="5.041"/>
+<path fill="#A98C48" d="M146.426,159.569l3-3.666c0,0-9.38-26.161-32.999-26c-24.027,0.163-34.667,26-34.667,26l3.667,3l-2.443,2.93
+	l25.152,25.181c0,0-1.321,11.223,7.816,11.223c9.137,0,7.91-10.366,7.836-11.465l24.69-24.609L146.426,159.569z M135.271,166.319
+	l-16.901,16.901h-4.633L96.767,166.25v-5.126l16.957-16.956h4.657l16.89,16.887V166.319z"/>
+</svg>

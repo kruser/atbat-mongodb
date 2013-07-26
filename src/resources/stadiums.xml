@@ -1,0 +1,110 @@
+<stadiums>
+	<stadium id="1" name="Angel Stadium of Anaheim">
+		<homePlate x="" y=""></homePlate>
+	</stadium> 
+	<stadium id="2395" name="AT&T Park">
+		<homePlate x="" y=""></homePlate>
+	</stadium> 
+	<stadium id="2889" name="Busch Stadium">
+		<homePlate x="" y=""></homePlate>
+	</stadium> 
+	<stadium id="2504" name="Champion Stadium">
+		<homePlate x="" y=""></homePlate>
+	</stadium> 
+	<stadium id="15" name="Chase Field">
+		<homePlate x="" y=""></homePlate>
+	</stadium> 
+	<stadium id="3289" name="Citi Field">
+		<homePlate x="" y=""></homePlate>
+	</stadium> 
+	<stadium id="2681" name="Citizens Bank Park">
+		<homePlate x="" y=""></homePlate>
+	</stadium> 
+	<stadium id="2394" name="Comerica Park">
+		<homePlate x="" y=""></homePlate>
+	</stadium> 
+	<stadium id="19" name="Coors Field">
+		<homePlate x="" y=""></homePlate>
+	</stadium> 
+	<stadium id="22" name="Dodger Stadium">
+		<homePlate x="" y=""></homePlate>
+	</stadium> 
+	<stadium id="20" name="Dolphin Stadium">
+		<homePlate x="" y=""></homePlate>
+	</stadium> 
+	<stadium id="3" name="Fenway Park">
+		<homePlate x="" y=""></homePlate>
+	</stadium> 
+	<stadium id="2602" name="Great American Ball Park">
+		<homePlate x="" y=""></homePlate>
+	</stadium> 
+	<stadium id="2535" name="Hiram Bithorn Stadium">
+		<homePlate x="" y=""></homePlate>
+	</stadium> 
+	<stadium id="8" name="Hubert H. Humphrey Metrodome">
+		<homePlate x="" y=""></homePlate>
+	</stadium> 
+	<stadium id="7" name="Kauffman Stadium">
+		<homePlate x="" y=""></homePlate>
+	</stadium> 
+	<stadium id="4169" name="Marlins Park">
+		<homePlate x="" y=""></homePlate>
+	</stadium> 
+	<stadium id="10" name="McAfee Coliseum">
+		<homePlate x="" y=""></homePlate>
+	</stadium> 
+	<stadium id="32" name="Miller Park">
+		<homePlate x="" y=""></homePlate>
+	</stadium> 
+	<stadium id="2392" name="Minute Maid Park">
+		<homePlate x="" y=""></homePlate>
+	</stadium> 
+	<stadium id="3309" name="Nationals Park">
+		<homePlate x="" y=""></homePlate>
+	</stadium> 
+	<stadium id="2" name="Oriole Park at Camden Yards">
+		<homePlate x="" y=""></homePlate>
+	</stadium> 
+	<stadium id="2680" name="PETCO Park">
+		<homePlate x="" y=""></homePlate>
+	</stadium> 
+	<stadium id="31" name="PNC Park">
+		<homePlate x="" y=""></homePlate>
+	</stadium> 
+	<stadium id="5" name="Progressive Field">
+		<homePlate x="" y=""></homePlate>
+	</stadium> 
+	<stadium id="13" name="Rangers Ballpark in Arlington">
+		<homePlate x="" y=""></homePlate>
+	</stadium> 
+	<stadium id="14" name="Rogers Centre">
+		<homePlate x="" y=""></homePlate>
+	</stadium> 
+	<stadium id="680" name="Safeco Field">
+		<homePlate x="" y=""></homePlate>
+	</stadium> 
+	<stadium id="25" name="Shea Stadium">
+		<homePlate x="" y=""></homePlate>
+	</stadium> 
+	<stadium id="3312" name="Target Field">
+		<homePlate x="" y=""></homePlate>
+	</stadium> 
+	<stadium id="2397" name="Tokyo Dome">
+		<homePlate x="" y=""></homePlate>
+	</stadium> 
+	<stadium id="12" name="Tropicana Field">
+		<homePlate x="" y=""></homePlate>
+	</stadium> 
+	<stadium id="16" name="Turner Field">
+		<homePlate x="" y=""></homePlate>
+	</stadium> 
+	<stadium id="4" name="U.S. Cellular Field">
+		<homePlate x="" y=""></homePlate>
+	</stadium> 
+	<stadium id="17" name="Wrigley Field">
+		<homePlate x="" y=""></homePlate>
+	</stadium> 
+	<stadium id="3313" name="Yankee Stadium">
+		<homePlate x="" y=""></homePlate>
+	</stadium> 
+</stadiums>
