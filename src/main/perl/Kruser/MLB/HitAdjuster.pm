@@ -59,4 +59,28 @@ sub get_hit_angle
 	return $rounded;
 }
 
+##
+# Given a hip instance, returns an estimation of the distance between home plate and the x,y coordinates of the hit.
+#
+# This method currently doesn't take the ballpark into consideration. It assumes all park images are nearly to scale.
+#
+# @param hit - an instance of the hip - see here for an example: http://gd2.mlb.com/components/game/mlb/year_2013/month_07/day_25/gid_2013_07_25_minmlb_seamlb_1/inning/inning_hit.xml
+# @returns angle
+##
+sub estimate_hit_distance
+{
+	my $this = shift;
+	my $hit  = shift;
+
+	my $x = $hit->{x};
+	my $y = $hit->{y};
+	
+	my $deltaX = $this->{homeX} - $x;
+	my $deltaY = $this->{homeY} - $y;
+
+	my $degrees = atan2($deltaY, $deltaX) * 180 / $PI;
+	my $rounded = sprintf("%.2f", $degrees);
+	return $rounded;
+}
+
 1;
