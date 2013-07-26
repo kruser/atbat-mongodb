@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" enable-background="new -2.583 -19.795 250 250" overflow="visible" viewBox="-2.583 -19.795 250 250" height="250px" width="250px" y="0px" x="0px" version="1.1">
+<defs>
+</defs>
+<polygon points="20.789,88.229 20.789,80.643 25.771,80.643 25.771,71.214 69.001,27.831   90.079,15.645 111.923,15.645 114.759,12.961 145.878,12.961 162.128,16.257 173.626,23.002 216.012,65.695 216.012,80.488   221.148,85.471 221.148,96.814 190.003,127.935 169.257,163.704 166.804,166.054 161.899,173.412 145.342,191.399 142.481,191.808   135.225,198.758 126.947,202.846 119.486,202.846 110.494,199.064 100.681,189.355 97.617,189.662 83.921,175.354 79.629,167.179   76.052,163.806 52.138,126.605 52.138,119.35 " stroke="#000201" fill="#AA8D49"></polygon>
+<polygon points="58.653,124.791 58.73,116.437 29.526,87.234 29.552,83.376 32.618,76.478 72.986,36.058   95.929,24.254 114.632,24.254 117.238,21.75 144.832,21.75 158.986,24.612 168.337,29.977 207.683,69.324 207.658,99.268   186.81,120.192 162.614,162.375 130.932,194.005 129.093,195.231 123.83,196.815 121.684,196.815 116.42,195.181 114.632,193.902   83.207,162.528 " fill="#0A823B"></polygon>
+<rect height="1.098" width="1.308" fill="#D9BD90" y="183.144" x="122.188"></rect>
+<polygon points="122.507,183.606 122.838,183.9 123.133,183.606 123.133,183.275 122.507,183.275 " fill="#FFFFFF"></polygon>
+<rect height="3.458" width="1.545" stroke-miterlimit="10" stroke-linejoin="round" stroke-linecap="round" stroke-width="0.4053" stroke="#FFFFFF" fill="#D9BD90" y="184.065" x="122.066"></rect>
+<rect height="2.612" width="1.73" stroke-miterlimit="10" stroke-linejoin="round" stroke-linecap="round" stroke-width="0.4053" stroke="#FFFFFF" fill="#D9BD90" y="182.152" x="123.353"></rect>
+<rect height="2.612" width="1.729" stroke-miterlimit="10" stroke-linejoin="round" stroke-linecap="round" stroke-width="0.4053" stroke="#FFFFFF" fill="#D9BD90" y="182.152" x="120.594"></rect>
+<text font-size="11" font-family="'Arial-BoldMT'" fill="#FF0000" transform="matrix(1 0 0 1 62.2095 17.9287)">390</text>
+<text font-size="11" font-family="'Arial-BoldMT'" fill="#FF0000" transform="matrix(1 0 0 1 120.9443 9.4375)">396</text>
+<text font-size="11" font-family="'Arial-BoldMT'" fill="#FF0000" transform="matrix(1 0 0 1 223.2017 79.4443)">322</text>
+<text font-size="11" font-family="'Arial-BoldMT'" fill="#FF0000" transform="matrix(1 0 0 1 0 89.2246)">336</text>
+<polygon points="223.241,164.285 221.21,178.419 223.114,180.322 " fill="#E5E5E5"></polygon>
+<polygon points="207.079,180.511 221.208,178.446 223.118,180.346 " fill="#DDDDDD"></polygon>
+<polygon points="207.089,180.466 221.235,182.406 223.128,180.49 " fill="#999999"></polygon>
+<polygon points="223.202,164.254 225.116,178.404 223.196,180.294 " fill="#727272"></polygon>
+<polygon points="239.151,180.492 225.017,178.46 223.112,180.365 " fill="#DDDDDD"></polygon>
+<polygon points="223.257,196.576 221.226,182.442 223.128,180.538 " fill="#D1D1D1"></polygon>
+<polygon points="239.151,180.458 225.005,182.398 223.112,180.482 " fill="#999999"></polygon>
+<polygon points="223.233,196.614 225.13,182.462 223.208,180.575 " fill="#727272"></polygon>
+<g>
+	<text font-size="7.6325" font-family="'Times-Roman'" transform="matrix(1 0 0 1 220.4546 164.2354)">N</text>
+</g>
+<g>
+	<text font-size="7.6325" font-family="'Times-Roman'" transform="matrix(1 0 0 1 200.5103 183.0752)">W</text>
+</g>
+<g>
+	<text font-size="7.6325" font-family="'Times-Roman'" transform="matrix(1 0 0 1 221.3013 202.1162)">S</text>
+</g>
+<g>
+	<text font-size="7.6325" font-family="'Times-Roman'" transform="matrix(1 0 0 1 238.9614 183.042)">E</text>
+</g>
+<text font-size="11" font-family="'Arial-BoldMT'" fill="#FF0000" transform="matrix(1 0 0 1 173.084 18.1494)">391</text>
+<text font-size="11" font-family="'Arial-BoldMT'" fill="#FF0000" transform="matrix(1 0 0 1 198.084 41.1494)">364</text>
+<circle r="5.042" cy="157.907" cx="123.007" fill="#A98C48"></circle>
+<path d="M152.907,153.948l3-3.666c0,0-9.381-26.161-32.999-26c-24.027,0.163-34.667,26-34.667,26l3.667,3  l-2.443,2.93l25.152,25.181c0,0-1.321,11.223,7.816,11.223s7.909-10.366,7.837-11.465l24.689-24.609L152.907,153.948z   M141.751,160.698l-16.9,16.901h-4.634l-16.969-16.971v-5.126l16.957-16.956h4.657l16.889,16.887V160.698z" fill="#A98C48"></path>
+<rect height="1.551" width="3.98" stroke="#FFFFFF" fill="#FFFFFF" y="156.882" x="120.591"></rect>
+<rect height="3.043" width="3.045" stroke="#FFFFFF" fill="#FFFFFF" transform="matrix(0.7073 -0.7069 0.7069 0.7073 -81.9837 114.5719)" y="154.759" x="95.831"></rect>
+<rect height="3.043" width="3.045" stroke="#FFFFFF" fill="#FFFFFF" transform="matrix(0.7073 -0.7069 0.7069 0.7073 -67.2081 150.2547)" y="154.759" x="146.305"></rect>
+<rect height="3.044" width="3.045" stroke="#FFFFFF" fill="#FFFFFF" transform="matrix(0.7069 -0.7073 0.7073 0.7069 -56.757 125.1072)" y="129.522" x="121.069"></rect>
+<polygon points="124.117,182.089 122.579,183.61 121.071,182.089 121.071,180.566 124.117,180.566   " stroke="#FFFFFF" fill="#FFFFFF"></polygon>
+<polyline points="231.983,74.456 122.595,183.671 15.358,76.392 " stroke-width="1.5" stroke="#FFFFFF" fill="none"></polyline>
+</svg>

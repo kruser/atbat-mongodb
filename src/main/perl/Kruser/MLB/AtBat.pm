@@ -219,6 +219,7 @@ sub _save_game_data
 			time      => $game->{time},
 			away_team => $game->{'away_code'},
 			home_team => $game->{'home_code'},
+			venue_id  => $game->{'venue_id'},
 		};
 
 		my $gameRosterUrl = "$dayUrl/gid_$gameId/players.xml";
@@ -309,8 +310,10 @@ sub _save_pitches
 	{
 		foreach my $inning ( @{ $inningsObj->{inning} } )
 		{
-			$this->_save_pitches_from_half_inning( $inning, 'top', $hitBalls, $shallowGameInfo, $fallbackDate, \@allPitches );
-			$this->_save_pitches_from_half_inning( $inning, 'bottom', $hitBalls, $shallowGameInfo, $fallbackDate, \@allPitches );
+			$this->_save_pitches_from_half_inning( $inning, 'top', $hitBalls, $shallowGameInfo, $fallbackDate,
+				\@allPitches );
+			$this->_save_pitches_from_half_inning( $inning, 'bottom', $hitBalls, $shallowGameInfo, $fallbackDate,
+				\@allPitches );
 		}
 	}
 	$this->{storage}->save_pitches( \@allPitches );
@@ -334,8 +337,8 @@ sub _save_pitches_from_half_inning
 		my @atbats = @{ $inning->{$inningSide}->{atbat} };
 		foreach my $atbat (@atbats)
 		{
-			$atbat->{'batter_team'}    = ($inningSide eq 'top') ? $inning->{'away_team'} : $inning->{'home_team'};
-			$atbat->{'pitcher_team'}   = ($inningSide eq 'top') ? $inning->{'home_team'} : $inning->{'away_team'};
+			$atbat->{'batter_team'}  = ( $inningSide eq 'top' ) ? $inning->{'away_team'} : $inning->{'home_team'};
+			$atbat->{'pitcher_team'} = ( $inningSide eq 'top' ) ? $inning->{'home_team'} : $inning->{'away_team'};
 			$atbat->{'start_tfs_zulu'} = _convert_to_datetime( $atbat->{'start_tfs_zulu'}, $fallbackDate );
 
 			my $shallowAtBat = dclone($atbat);

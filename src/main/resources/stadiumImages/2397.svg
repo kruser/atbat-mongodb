@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 15.1.0, SVG Export Plug-In  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" [
+	<!ENTITY ns_flows "http://ns.adobe.com/Flows/1.0/">
+]>
+<svg version="1.1"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:a="http://ns.adobe.com/AdobeSVGViewerExtensions/3.0/"
+	 x="0px" y="0px" width="250px" height="250px" viewBox="-8.65 -18.159 250 250"
+	 overflow="visible" enable-background="new -8.65 -18.159 250 250" xml:space="preserve">
+<defs>
+</defs>
+<path fill="#AA8D49" stroke="#000000" d="M12.556,83.349c7.84-7.841,34.43-31.703,43.634-41.248s27.966-24.723,41.589-25.908
+	c15.681-1.363,40.226-2.045,50.453,3.408c10.227,5.455,22.499,17.728,33.066,26.932s39.544,36.135,39.544,36.135
+	s-33.066,46.36-48.065,67.497c-14.999,21.136-41.184,59.135-57.612,59.997c-6.477,0.341-18.068-9.204-29.317-23.861
+	C74.598,171.641,12.556,83.349,12.556,83.349z"/>
+<path fill="#0A823C" d="M115.165,204.025c7.358,0,22.5-18.748,33.067-31.02c10.567-12.273,59.997-83.18,64.77-89.997
+	c-14.317-13.637-57.951-54.885-67.837-58.635c-9.887-3.75-28.295-3.408-36.135-3.408c-7.871,0-19.772-1.023-39.885,16.703
+	C47.056,57.138,19.715,84.713,19.715,84.713l9.204,10.568c0,0,44.999,64.771,52.498,74.655
+	C88.916,179.822,108.347,204.025,115.165,204.025z"/>
+<g>
+	<text transform="matrix(1 0 0 1 0 76.0059)" fill="#FF0000" font-family="'Arial-BoldMT'" font-size="10.2268">328</text>
+</g>
+<g>
+	<text transform="matrix(1 0 0 1 36.4536 40.1436)" fill="#FF0000" font-family="'Arial-BoldMT'" font-size="10.2268">361</text>
+</g>
+<g>
+	<text transform="matrix(1 0 0 1 106.6772 10.2305)" fill="#FF0000" font-family="'Arial-BoldMT'" font-size="10.2268">400</text>
+</g>
+<g>
+	<text transform="matrix(1 0 0 1 179.6812 39.7168)" fill="#FF0000" font-family="'Arial-BoldMT'" font-size="10.2268">361</text>
+</g>
+<g>
+	<text transform="matrix(1 0 0 1 216.3794 75.5293)" fill="#FF0000" font-family="'Arial-BoldMT'" font-size="10.2268">328</text>
+</g>
+<polygon fill="#E5E5E5" points="209.007,197.162 214.808,210.21 217.433,210.808 "/>
+<polygon fill="#DDDDDD" points="203.96,219.502 214.823,210.233 217.45,210.825 "/>
+<polygon fill="#999999" points="203.943,219.459 216.952,213.571 217.534,210.942 "/>
+<polygon fill="#727272" points="208.957,197.156 218.108,208.118 217.488,210.739 "/>
+<polygon fill="#DDDDDD" points="231.101,202.416 218.053,208.218 217.455,210.845 "/>
+<polygon fill="#D1D1D1" points="226.206,224.492 216.963,213.608 217.561,210.982 "/>
+<polygon fill="#999999" points="231.083,202.387 220.14,211.559 217.518,210.943 "/>
+<polygon fill="#727272" points="226.205,224.537 220.279,211.546 217.648,210.972 "/>
+<g>
+	<text transform="matrix(0.8466 -0.5322 0.5322 0.8466 206.6216 198.6074)" font-family="'Times-Roman'" font-size="7.6328">N</text>
+</g>
+<g>
+	<text transform="matrix(0.8466 -0.5322 0.5322 0.8466 199.7642 225.1719)" font-family="'Times-Roman'" font-size="7.6328">W</text>
+</g>
+<g>
+	<text transform="matrix(0.8466 -0.5322 0.5322 0.8466 227.5005 230.2275)" font-family="'Times-Roman'" font-size="7.6328">S</text>
+</g>
+<g>
+	<text transform="matrix(0.8466 -0.5322 0.5322 0.8466 232.3003 204.6797)" font-family="'Times-Roman'" font-size="7.6328">E</text>
+</g>
+<path fill="#B5A471" d="M82.671,151.295l0.5,0.5l-0.5-0.6V151.295z"/>
+<path fill="#57735E" d="M86.072,154.595l0.2-0.3l-3.1-2.5L86.072,154.595z"/>
+<circle fill="#A98C48" cx="116.94" cy="159.543" r="5.042"/>
+<path fill="#A98C48" d="M146.84,155.584l3-3.666c0,0-9.381-26.161-32.999-26c-24.027,0.163-34.667,26-34.667,26l3.667,3l-2.443,2.93
+	l25.152,25.181c0,0-1.321,11.223,7.816,11.223s7.909-10.366,7.837-11.465l24.689-24.609L146.84,155.584z M135.684,162.334
+	l-16.9,16.901h-4.634l-16.969-16.971v-5.126l16.957-16.956h4.657l16.889,16.887V162.334z"/>
+<rect x="114.523" y="158.518" fill="#FFFFFF" stroke="#FFFFFF" width="3.98" height="1.551"/>
+<rect x="89.763" y="156.395" transform="matrix(0.7073 -0.7069 0.7069 0.7073 -84.9162 110.7614)" fill="#FFFFFF" stroke="#FFFFFF" width="3.045" height="3.043"/>
+<rect x="140.238" y="156.395" transform="matrix(0.7073 -0.7069 0.7069 0.7073 -70.1406 146.4442)" fill="#FFFFFF" stroke="#FFFFFF" width="3.045" height="3.043"/>
+<rect x="115.001" y="131.157" transform="matrix(0.7069 -0.7073 0.7073 0.7069 -59.692 121.2953)" fill="#FFFFFF" stroke="#FFFFFF" width="3.045" height="3.044"/>
+<polygon fill="#FFFFFF" stroke="#FFFFFF" points="118.05,183.725 116.512,185.246 115.004,183.725 115.004,182.202 118.05,182.202 
+	"/>
+<polyline fill="none" stroke="#FFFFFF" stroke-width="1.5" points="225.916,76.092 116.527,185.307 9.291,78.027 "/>
+</svg>

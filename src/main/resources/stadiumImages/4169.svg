@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 15.1.0, SVG Export Plug-In  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" [
+	<!ENTITY ns_flows "http://ns.adobe.com/Flows/1.0/">
+]>
+<svg version="1.1"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:a="http://ns.adobe.com/AdobeSVGViewerExtensions/3.0/"
+	 x="0px" y="0px" width="250px" height="250px" viewBox="-9.351 -12 250 250"
+	 overflow="visible" enable-background="new -9.351 -12 250 250" xml:space="preserve">
+<defs>
+</defs>
+<path fill="#AA8D49" stroke="#000000" d="M92.65,13.988c0,0,38.327-6.981,75.661,19.685l50.521,60.333L133.596,202.58
+	c0,0-16.004,22.818-34.584,0.266L11.143,91.337c0,0,26.904-40.795,44.537-50.563C73.313,31.006,99.01,25.492,92.65,13.988z"/>
+<path fill="#0A823C" d="M18.59,93.499c0,0,23.71-34.267,41.859-45.876c18.149-11.609,40.871-13.471,42.235-28.184
+	c0,0,39.97-0.527,66.636,26.164l40.558,51.748L127.986,199.43c0,0-11.409,16.441-23.911-1.419L18.59,93.499z"/>
+<text transform="matrix(1 0 0 1 0 78.3359)" fill="#FF0000" font-family="'Arial-BoldMT'" font-size="11">344</text>
+<text transform="matrix(1 0 0 1 101.2764 9.4375)" fill="#FF0000" font-family="'Arial-BoldMT'" font-size="11">422</text>
+<text transform="matrix(1 0 0 1 36.8213 38.5068)" fill="#FF0000" font-family="'Arial-BoldMT'" font-size="11">386</text>
+<text transform="matrix(1 0 0 1 169.8105 30.2559)" fill="#FF0000" font-family="'Arial-BoldMT'" font-size="11">392</text>
+<text transform="matrix(1 0 0 1 213.167 81.8594)" fill="#FF0000" font-family="'Arial-BoldMT'" font-size="11">335</text>
+<polygon fill="#E5E5E5" points="208.323,203.107 216.832,191.641 216.062,189.062 "/>
+<polygon fill="#DDDDDD" points="230.257,196.521 216.848,191.617 216.07,189.037 "/>
+<polygon fill="#999999" points="230.229,196.555 218.707,188.122 216.131,188.907 "/>
+<polygon fill="#727272" points="208.343,203.152 213.391,189.794 215.979,189.047 "/>
+<polygon fill="#DDDDDD" points="202.037,181.282 213.503,189.793 216.085,189.023 "/>
+<polygon fill="#D1D1D1" points="223.669,174.693 218.732,188.096 216.152,188.864 "/>
+<polygon fill="#999999" points="202.02,181.312 215.387,186.335 216.141,188.921 "/>
+<polygon fill="#727272" points="223.708,174.672 215.307,186.218 216.1,188.793 "/>
+<text transform="matrix(-0.8797 -0.4756 0.4756 -0.8797 211.1533 204.665)" font-family="'TimesNewRomanPSMT'" font-size="7.6328">N</text>
+<text transform="matrix(-0.8797 -0.4756 0.4756 -0.8797 237.6582 197.5811)" font-family="'TimesNewRomanPSMT'" font-size="7.6328">W</text>
+<text transform="matrix(-0.8797 -0.4756 0.4756 -0.8797 228.4297 170.9287)" font-family="'TimesNewRomanPSMT'" font-size="7.6328">S</text>
+<text transform="matrix(-0.8797 -0.4756 0.4756 -0.8797 203.8193 179.3066)" font-family="'TimesNewRomanPSMT'" font-size="7.6328">E</text>
+<circle fill="#A98C48" cx="116.239" cy="165.702" r="5.042"/>
+<path fill="#A98C48" d="M146.139,161.743l3-3.666c0,0-9.381-26.161-32.999-26c-24.027,0.163-34.667,26-34.667,26l3.667,3
+	l-2.443,2.93l25.152,25.181c0,0-1.321,11.223,7.816,11.223s7.909-10.366,7.837-11.465l24.689-24.609L146.139,161.743z
+	 M134.982,168.493l-16.9,16.901h-4.634l-16.969-16.971v-5.126l16.957-16.956h4.657l16.889,16.887V168.493z"/>
+<rect x="113.822" y="164.677" fill="#FFFFFF" stroke="#FFFFFF" width="3.98" height="1.551"/>
+<rect x="89.062" y="162.554" transform="matrix(0.7073 -0.7069 0.7069 0.7073 -89.4756 112.0687)" fill="#FFFFFF" stroke="#FFFFFF" width="3.045" height="3.043"/>
+<rect x="139.537" y="162.554" transform="matrix(0.7073 -0.7069 0.7069 0.7073 -74.7001 147.7516)" fill="#FFFFFF" stroke="#FFFFFF" width="3.045" height="3.043"/>
+<rect x="114.3" y="137.316" transform="matrix(0.7069 -0.7073 0.7073 0.7069 -64.2537 122.6044)" fill="#FFFFFF" stroke="#FFFFFF" width="3.045" height="3.044"/>
+<polygon fill="#FFFFFF" stroke="#FFFFFF" points="117.349,189.884 115.811,191.405 114.303,189.884 114.303,188.361 
+	117.349,188.361 "/>
+<polyline fill="none" stroke="#FFFFFF" stroke-width="1.5" points="225.215,82.251 115.826,191.466 8.59,84.187 "/>
+</svg>
