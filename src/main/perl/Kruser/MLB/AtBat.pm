@@ -304,6 +304,7 @@ sub _add_hit_angles
 			$hip->{estimatedDistance} = $hitAdjuster->estimate_hit_distance($hip);
 		}
 	}
+	return $hipList;
 }
 
 ##
