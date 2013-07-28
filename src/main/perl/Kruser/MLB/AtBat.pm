@@ -264,6 +264,12 @@ sub _save_game_data
 		if ( $inningsXml && $hitsXml )
 		{
 			my $hitsForAtBats = $this->_add_hit_angles( XMLin( $hitsXml, KeyAttr => {}, ForceArray => ['hip'] ) );
+
+			#			if ($game->{'away_name_abbrev'} eq 'MIN')
+			#			{
+			#			print Dumper($hitsForAtBats);
+			#			exit;
+			#			}
 			$this->_save_at_bats(
 				XMLin(
 					$inningsXml,
@@ -295,13 +301,15 @@ sub _add_hit_angles
 	my $hipList = shift;
 
 	my $hitAdjuster = new Kruser::MLB::HitAdjuster();
-	
+
 	if ( $hipList->{hip} )
 	{
 		for my $hip ( @{ $hipList->{hip} } )
 		{
 			$hip->{angle} = $hitAdjuster->get_hit_angle($hip);
-			$hip->{estimatedDistance} = $hitAdjuster->estimate_hit_distance($hip);
+
+			# don't insert distance as they aren't reliable just yet
+			#$hip->{estimatedDistance} = $hitAdjuster->estimate_hit_distance($hip);
 		}
 	}
 	return $hipList;
@@ -373,19 +381,13 @@ sub _save_pitches_from_half_inning
 			{
 				my @pitches = @{ $atbat->{pitch} };
 
-				if ( $hitBalls->{'hip'} > 0 )
+				my $hip = $this->_get_hip_for_atbat( $hitBalls, $inning->{num}, $atbat->{batter} );
+				if ($hip)
 				{
-					my $nextHIP = $hitBalls->{'hip'}[0];
-					if (   $nextHIP->{'inning'} eq $inning->{'num'}
-						&& $nextHIP->{'batter'} eq $atbat->{'batter'} )
-					{
-
-						# inject the hit ball on the last pitch of the at-bat
-						$pitches[-1]->{'hip'} = $nextHIP;
-						shift( @{ $hitBalls->{'hip'} } );
-					}
+					# inject the hit ball on the last pitch of the at-bat
+					$pitches[-1]->{'hip'} = $hip;
 				}
-
+				
 				foreach my $pitch (@pitches)
 				{
 					$pitch->{'tfs_zulu'} = _convert_to_datetime( $pitch->{'tfs_zulu'}, $fallbackDate );
@@ -440,6 +442,7 @@ sub _save_at_bats
 			}
 		}
 	}
+	print Dumper($hitsObj);
 	$this->{storage}->save_at_bats( \@allAtBats );
 }
 
@@ -508,17 +511,56 @@ sub _save_at_bats_for_inning
 		$atbat->{'game'}           = $shallowGameInfo,;
 		$atbat->{'start_tfs_zulu'} = _convert_to_datetime( $atbat->{'start_tfs_zulu'}, $fallbackDate );
 
-		if ( $hitBalls->{'hip'} > 0 )
+		my $hip = $this->_get_hip_for_atbat( $hitBalls, $inning->{num}, $atbat->{batter} );
+		if ($hip)
 		{
-			my $nextHIP = $hitBalls->{'hip'}[0];
-			if ( $nextHIP->{'inning'} eq $inning->{'num'} && $nextHIP->{'batter'} eq $atbat->{'batter'} )
-			{
-				$atbat->{'hip'} = $nextHIP;
-				shift( @{ $hitBalls->{'hip'} } );
-			}
+			$atbat->{'hip'} = $hip;
 		}
 		push( @{$aggregateAtBats}, $atbat );
 	}
+}
+
+##
+# Hand me a list of hit balls and we'll pick the one for your batter/inning (the first one for that inning)
+#
+# Note that the inbound list will be altered, in that we'll remove the match to make this method a little
+# faster on the next go-round. The method isn't that performant, but it's good enough.
+#
+# @param hitBalls - a hash containing an array of hits at $hitBalls->{'hip'}
+# @param inning - the inning number
+# @param batterId - the ID of the batter
+# @returns a hip instance or undefined if it there wasn't a match.
+# @private
+##
+sub _get_hip_for_atbat
+{
+	my $this     = shift;
+	my $hitBalls = shift;
+	my $inning   = shift;
+	my $batterId = shift;
+
+	my @hips     = @{ $hitBalls->{'hip'} };
+	my $hipCount = @hips;
+	print "Hits Left: $hipCount\n";
+
+	my $hipMatch      = undef;
+	my $hipMatchIndex = undef;
+
+	for ( my $i = 0 ; $i < $hipCount ; $i++ )
+	{
+		my $hip = @hips[$i];
+		if ( $hip->{'inning'} == $inning && $hip->{'batter'} == $batterId && $hip->{'des'} ne 'Error' )
+		{
+			$hipMatch      = $hip;
+			$hipMatchIndex = $i;
+			last;
+		}
+	}
+	if ( $hipMatch && $hipMatchIndex >= 0 )
+	{
+		splice( @{ $hitBalls->{'hip'} }, $hipMatchIndex, 1 );
+	}
+	return $hipMatch;
 }
 
 ##

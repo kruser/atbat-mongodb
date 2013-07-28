@@ -66,7 +66,8 @@ sub get_hit_angle
 ##
 # Given a hip instance, returns an estimation of the distance between home plate and the x,y coordinates of the hit.
 #
-# This method currently doesn't take the ballpark into consideration. It assumes all park images are nearly to scale.
+# WARNING: THIS METHOD ISN'T RELIABLE. IT NEEDS TO TAKE THE FIELD INTO ACCOUNT AS THE IMAGES AND X/Y COORDINATES
+# ARE NOT TO THE SAME SCALE ON FIELD TO FIELD.
 #
 # @param hit - an instance of the hip - see here for an example: http://gd2.mlb.com/components/game/mlb/year_2013/month_07/day_25/gid_2013_07_25_minmlb_seamlb_1/inning/inning_hit.xml
 # @returns angle
