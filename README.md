@@ -130,6 +130,14 @@ start over at the beginning as something went wrong with the data collection.
     346822
     > 
 
+### Indexes
+Note that I haven't created indexes on any of your database collections by default. You may wish to place these on your index
+depending on the type of research you're doing. Of course, this is all optional, but it would provide performance boosts if you're
+doing a lot of queries.
+
+Read up on MongoDB indexes for more information.
+http://docs.mongodb.org/manual/core/indexes/
+
 ### Some sample functions
 I won't have a lot of information here. This part is mostly up to you, but I want to give you some foo to get you excited.
 
@@ -201,6 +209,7 @@ will be reported to have three strikes when the batter strikes out, and we certa
 The example above would have been much more performant with a MongoDB aggregate $match and a $group that aggregated 
 the at-bats and hits together. I kept this as two queries for simplicity. For more information on MongoDB aggregation, 
 go here http://docs.mongodb.org/manual/reference/aggregation/
+
 
 ---
 
