@@ -264,12 +264,6 @@ sub _save_game_data
 		if ( $inningsXml && $hitsXml )
 		{
 			my $hitsForAtBats = $this->_add_hit_angles( XMLin( $hitsXml, KeyAttr => {}, ForceArray => ['hip'] ) );
-
-			#			if ($game->{'away_name_abbrev'} eq 'MIN')
-			#			{
-			#			print Dumper($hitsForAtBats);
-			#			exit;
-			#			}
 			$this->_save_at_bats(
 				XMLin(
 					$inningsXml,
@@ -442,7 +436,6 @@ sub _save_at_bats
 			}
 		}
 	}
-	print Dumper($hitsObj);
 	$this->{storage}->save_at_bats( \@allAtBats );
 }
 
@@ -541,7 +534,6 @@ sub _get_hip_for_atbat
 
 	my @hips     = @{ $hitBalls->{'hip'} };
 	my $hipCount = @hips;
-	print "Hits Left: $hipCount\n";
 
 	my $hipMatch      = undef;
 	my $hipMatchIndex = undef;
