@@ -31,7 +31,6 @@ You'll need to install these modules if you don't have them installed already
 * File::Basename
 * Getopt::Long
 * LWP
-* Log::Log4perl
 * XML::Simple
 * Data::Dumper
 * Date::Parse
@@ -68,11 +67,8 @@ the program like this will grab an entire year.
 
     ./atbatETL.pl --year=2013
 
-Note that the program logs quite a bit of interesting output to the log filename listed in the *log4perl.conf* file, which is */var/log/mlbatbat.log* by
-default. On linux or MacOS you may need to set the permissions on this file or run the program with sudo to ensure you can write the log
-file.
-
-I suggest you tail the log file and watch the days and games roll by. A snippet of the output is...
+Note that the program logs quite a bit of interesting output to the log filename listed in the *log4perl.conf* file. By default this is a file
+called *mlbatbat.log*. I suggest you tail the log file and watch the days and games roll by. A snippet of the output is...
 
     2013/06/29 15:42:53 DEBUG [Kruser.MLB.AtBat] Getting game roster details from http://gd2.mlb.com/components/game/mlb/year_2013/month_06/day_28/gid_2013_06_28_slnmlb_oakmlb_1/players.xml
     2013/06/29 15:42:53 DEBUG [Kruser.MLB.AtBat] Getting at-bat details from http://gd2.mlb.com/components/game/mlb/year_2013/month_06/day_28/gid_2013_06_28_chnmlb_seamlb_1/inning/inning_all.xml
