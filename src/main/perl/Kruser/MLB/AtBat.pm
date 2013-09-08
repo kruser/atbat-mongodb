@@ -378,10 +378,11 @@ sub _save_pitches_from_half_inning
 				my $hip = $this->_get_hip_for_atbat( $hitBalls, $inning->{num}, $atbat->{batter} );
 				if ($hip)
 				{
+
 					# inject the hit ball on the last pitch of the at-bat
 					$pitches[-1]->{'hip'} = $hip;
 				}
-				
+
 				foreach my $pitch (@pitches)
 				{
 					$pitch->{'tfs_zulu'} = _convert_to_datetime( $pitch->{'tfs_zulu'}, $fallbackDate );
@@ -508,22 +509,56 @@ sub _save_at_bats_for_inning
 		if ($hip)
 		{
 			$atbat->{'hip'} = $hip;
-			
+
 			my $trajectory = 'grounder';
-			if ($atbat->{'des'} =~ /pop up|pops out/i)
+			if ( $atbat->{'des'} =~ /pop up|pops out/i )
 			{
-				$trajectory = 'popup';	
+				$trajectory = 'popup';
 			}
-			elsif ($atbat->{'des'} =~ /line drive|lines out/i)
+			elsif ( $atbat->{'des'} =~ /line drive|lines out/i )
 			{
-				$trajectory = 'liner';	
+				$trajectory = 'liner';
 			}
-			elsif ($atbat->{'des'} =~ /fly ball|flies out/i)
+			elsif ( $atbat->{'des'} =~ /fly ball|flies out/i )
 			{
-				$trajectory = 'flyball';	
+				$trajectory = 'flyball';
 			}
 			$atbat->{'hip'}->{'trajectory'} = $trajectory;
 		}
+
+		my $runnersPotentialBases = 0;
+		if ( $atbat->{'pitch'} )
+		{
+			my @pitches   = @{ $atbat->{'pitch'} };
+			my $lastPitch = $pitches[-1];
+			if ($lastPitch)
+			{
+				if ( $lastPitch->{'on_1b'} )
+				{
+					$runnersPotentialBases += 3;
+				}
+				if ( $lastPitch->{'on_2b'} )
+				{
+					$runnersPotentialBases += 2;
+				}
+				if ( $lastPitch->{'on_3b'} )
+				{
+					$runnersPotentialBases += 1;
+				}
+			}
+		}
+		$atbat->{'runnersPotentialBases'} = $runnersPotentialBases;
+
+		my $runnersMovedBases = 0;
+		if ( $atbat->{'runner'} )
+		{
+			my @runners = @{ $atbat->{'runner'} };
+			foreach my $runner (@runners)
+			{
+				$runnersMovedBases += _get_runners_moved($runner);
+			}
+		}
+		$atbat->{'runnersMovedBases'} = $runnersMovedBases;
 		push( @{$aggregateAtBats}, $atbat );
 	}
 }
@@ -637,6 +672,63 @@ sub _get_xml_page
 		$logger->warn("No content found at $url");
 		return undef;
 	}
+}
+
+##
+# Get the number of bases that a runner moved in the at-bat
+#
+# @param {runner} - the runner as it comes from the atbat schema
+# @returns the number of bases moved by a runner that isn't the batter
+# @static
+# @private
+##
+sub _get_runners_moved
+{
+	my $runner = shift;
+
+	my $endInt  = 0;
+	my $endBase = $runner->{'end'};
+
+	my $startInt  = 0;
+	my $startBase = $runner->{'start'};
+
+	if ($startBase)
+	{
+		if ( $startBase eq '1B' )
+		{
+			$startInt = 1;
+		}
+		elsif ( $startBase eq '2B' )
+		{
+			$startInt = 2;
+		}
+		elsif ( $startBase eq '3B' )
+		{
+			$startInt = 3;
+		}
+
+		if ($endBase eq '' && $runner->{'score'} eq 'T')
+		{
+			$endInt = 4;
+		}
+		elsif ($endBase eq '')
+		{
+			$endInt = $startInt;
+		}
+		elsif ($endBase eq '3B')
+		{
+			$endInt = 3;
+		}
+		elsif ($endBase eq '2B')
+		{
+			$endInt = 2;
+		}
+		elsif ($endBase eq '1B')
+		{
+			$endInt = 1;
+		}
+	}
+	return $endInt - $startInt;
 }
 
 ##
