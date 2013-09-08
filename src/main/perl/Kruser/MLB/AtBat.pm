@@ -523,8 +523,6 @@ sub _save_at_bats_for_inning
 				$trajectory = 'flyball';	
 			}
 			$atbat->{'hip'}->{'trajectory'} = $trajectory;
-			print Dumper($atbat);
-			exit;
 		}
 		push( @{$aggregateAtBats}, $atbat );
 	}
