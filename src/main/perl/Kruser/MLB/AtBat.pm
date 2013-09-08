@@ -508,6 +508,23 @@ sub _save_at_bats_for_inning
 		if ($hip)
 		{
 			$atbat->{'hip'} = $hip;
+			
+			my $trajectory = 'grounder';
+			if ($atbat->{'des'} =~ /pop up|pops out/i)
+			{
+				$trajectory = 'popup';	
+			}
+			elsif ($atbat->{'des'} =~ /line drive|lines out/i)
+			{
+				$trajectory = 'liner';	
+			}
+			elsif ($atbat->{'des'} =~ /fly ball|flies out/i)
+			{
+				$trajectory = 'flyball';	
+			}
+			$atbat->{'hip'}->{'trajectory'} = $trajectory;
+			print Dumper($atbat);
+			exit;
 		}
 		push( @{$aggregateAtBats}, $atbat );
 	}
