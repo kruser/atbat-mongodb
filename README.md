@@ -134,6 +134,32 @@ doing a lot of queries.
 Read up on MongoDB indexes for more information.
 http://docs.mongodb.org/manual/core/indexes/
 
+For the http://PitchFX.org site I have started with these indexes. You can't go wrong with these if you don't care about the slight storage overhead.
+    
+    db.players.ensureIndex({'first':1,'last':1});
+    db.pitches.ensureIndex({'atbat.pitcher':1});
+    db.pitches.ensureIndex({'atbat.batter':1});
+    db.pitches.ensureIndex({'atbat.p_throws':1});
+    db.pitches.ensureIndex({'atbat.stand':1});
+    db.pitches.ensureIndex({'atbat.o_start':1});
+    db.pitches.ensureIndex({'game.game_type':1});
+    db.pitches.ensureIndex({'inning.number':1});
+    db.pitches.ensureIndex({'on_1b':1});
+    db.pitches.ensureIndex({'on_2b':1});
+    db.pitches.ensureIndex({'on_3b':1});
+    db.pitches.ensureIndex({'tfs_zulu':1});
+    db.atbats.ensureIndex({'pitcher':1});
+    db.atbats.ensureIndex({'batter':1});
+    db.atbats.ensureIndex({'p_throws':1});
+    db.atbats.ensureIndex({'stand':1});
+    db.atbats.ensureIndex({'o_start':1});
+    db.atbats.ensureIndex({'game.game_type':1});
+    db.atbats.ensureIndex({'start_tfs_zulu':1});
+    db.atbats.ensureIndex({'inning.number':1});
+    db.atbats.ensureIndex({'pitch.on_1b':1});
+    db.atbats.ensureIndex({'pitch.on_2b':1});
+    db.atbats.ensureIndex({'pitch.on_3b':1});
+
 ### Some sample functions
 I won't have a lot of information here. This part is mostly up to you, but I want to give you some foo to get you excited.
 
