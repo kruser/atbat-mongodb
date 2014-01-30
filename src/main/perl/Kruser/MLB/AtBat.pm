@@ -22,8 +22,7 @@ my $logger  = Log::Log4perl->get_logger("Kruser::MLB::AtBat");
 ##
 # Construct an instance
 ##
-sub new
-{
+sub new {
 	my ( $proto, %params ) = @_;
 	my $package = ref($proto) || $proto;
 
@@ -37,8 +36,7 @@ sub new
 		players     => {},
 	};
 
-	foreach my $key ( keys %params )
-	{
+	foreach my $key ( keys %params ) {
 		$this->{$key} = $params{$key};
 	}
 
@@ -49,30 +47,23 @@ sub new
 ##
 # retreives data since the last sync point
 ##
-sub initiate_sync
-{
+sub initiate_sync {
 	my $this = shift;
-	if ( $this->{year} && $this->{month} && $this->{day} )
-	{
+	if ( $this->{year} && $this->{month} && $this->{day} ) {
 		$this->_retrieve_day( $this->{year}, $this->{month}, $this->{day} );
 	}
-	elsif ( $this->{year} && $this->{month} )
-	{
+	elsif ( $this->{year} && $this->{month} ) {
 		$this->_retrieve_month( $this->{year}, $this->{month} );
 	}
-	elsif ( $this->{year} )
-	{
+	elsif ( $this->{year} ) {
 		$this->_retrieve_year( $this->{year} );
 	}
-	else
-	{
+	else {
 		my $lastDate = $this->{storage}->get_last_sync_date();
-		if ($lastDate)
-		{
+		if ($lastDate) {
 			$this->_retrieve_since($lastDate);
 		}
-		else
-		{
+		else {
 			$logger->info(
 "Your database doesn't have any data so we're not sure when to sync to. Try seeding it with a year or month."
 			);
@@ -85,15 +76,13 @@ sub initiate_sync
 # Retrieves all data since the given date
 #
 ##
-sub _retrieve_since
-{
+sub _retrieve_since {
 	my $this     = shift;
 	my $lastDate = shift;
 
 	my $lastDateTime = _convert_to_datetime($lastDate)->epoch() + 86400;
 	my $today        = DateTime->now()->epoch();
-	while ( $lastDateTime < $today )
-	{
+	while ( $lastDateTime < $today ) {
 		my $dt = DateTime->from_epoch( epoch => $lastDateTime );
 		$this->_retrieve_day( $dt->year(), $dt->month(), $dt->day() );
 		$lastDateTime += 86400;
@@ -104,14 +93,14 @@ sub _retrieve_since
 # retrieves a full year
 # @param year in YYYY format
 ##
-sub _retrieve_year
-{
+sub _retrieve_year {
 	my $this = shift;
 	my $year = shift;
-	$logger->info("Retrieving a full year for $year. Sit tight, this could take a few minutes.");
+	$logger->info(
+"Retrieving a full year for $year. Sit tight, this could take a few minutes."
+	);
 
-	for ( my $month = 3 ; $month <= 11 && $this->{'beforetoday'} ; $month++ )
-	{
+	for ( my $month = 3 ; $month <= 11 && $this->{'beforetoday'} ; $month++ ) {
 		$this->_retrieve_month( $year, $month );
 	}
 }
@@ -119,22 +108,19 @@ sub _retrieve_year
 ##
 # retrieves an entire month's worth of data
 ##
-sub _retrieve_month
-{
+sub _retrieve_month {
 	my $this  = shift;
 	my $year  = shift;
 	my $month = shift;
 	$logger->info("Retrieving data for the month $year-$month.");
-	if ( $month > 2 && $month < 12 )
-	{
-		for ( my $day = 1 ; $day <= 31 && $this->{'beforetoday'} ; $day++ )
-		{
+	if ( $month > 2 && $month < 12 ) {
+		for ( my $day = 1 ; $day <= 31 && $this->{'beforetoday'} ; $day++ ) {
 			$this->_retrieve_day( $year, $month, $day );
 		}
 	}
-	else
-	{
-		$logger->info("skipping analyzing $year-$month since there aren't MLB games");
+	else {
+		$logger->info(
+			"skipping analyzing $year-$month since there aren't MLB games");
 	}
 }
 
@@ -143,8 +129,7 @@ sub _retrieve_month
 # @param year in YYYY format
 # @param day in DD format
 ##
-sub _retrieve_day
-{
+sub _retrieve_day {
 	my $this  = shift;
 	my $year  = shift;
 	my $month = shift;
@@ -153,12 +138,24 @@ sub _retrieve_day
 	my $targetDay;
 
 	eval {
-		$targetDay =
-		  DateTime->new( year => $year, month => $month, day => $day, hour => 23, minute => 59, second => 59 );
+		$targetDay = DateTime->new(
+			year   => $year,
+			month  => $month,
+			day    => $day,
+			hour   => 23,
+			minute => 59,
+			second => 59
+		);
 	} or do { return; };
 
-	my $fallbackDate =
-	  DateTime->new( year => $year, month => $month, day => $day, hour => 20, minute => 0, second => 0 );
+	my $fallbackDate = DateTime->new(
+		year   => $year,
+		month  => $month,
+		day    => $day,
+		hour   => 20,
+		minute => 0,
+		second => 0
+	);
 
 	# format the short strings for the URL
 	$month = '0' . $month if $month < 10;
@@ -167,15 +164,17 @@ sub _retrieve_day
 
 	my $now              = DateTime->now();
 	my $millisDifference = $now->epoch() - $targetDay->epoch();
-	if ( $millisDifference < 60 * 60 * 8 )
-	{
-		$logger->info("The target date for $dayString is today, in the future, or late last night. Exiting soon....");
+	if ( $millisDifference < 60 * 60 * 8 ) {
+		$logger->info(
+"The target date for $dayString is today, in the future, or late last night. Exiting soon...."
+		);
 		$this->{beforetoday} = 0;
 		return;
 	}
-	elsif ( $this->{storage}->already_have_day($dayString) )
-	{
-		$logger->info("We already have some game data for $dayString. Skipping this day.");
+	elsif ( $this->{storage}->already_have_day($dayString) ) {
+		$logger->info(
+			"We already have some game data for $dayString. Skipping this day."
+		);
 		return;
 	}
 
@@ -184,10 +183,10 @@ sub _retrieve_day
 
 	my @threads;
 	my @games = $this->_get_games_for_day($dayUrl);
-	foreach my $game (@games)
-	{
+	foreach my $game (@games) {
 		$game->{'source_day'} = $dayString;
-		$game->{'start'} = _convert_to_datetime( $game->{'start'}, $fallbackDate );
+		$game->{'start'}      =
+		  _convert_to_datetime( $game->{'start'}, $fallbackDate );
 		$this->_save_game_data( $dayUrl, $game, $fallbackDate );
 	}
 	$logger->info("Finished retrieving data for $dayString.");
@@ -201,8 +200,7 @@ sub _retrieve_day
 # @param {Object} game - the top level game data
 # @param {Object} fallbackDate - on MLB gameday servers some games and at-bats don't have a good timestamp. When that's the case this will be used.
 ##
-sub _save_game_data
-{
+sub _save_game_data {
 	my $this         = shift;
 	my $dayUrl       = shift;
 	my $game         = shift;
@@ -210,76 +208,83 @@ sub _save_game_data
 
 	$game->{start} = _convert_to_datetime( $game->{start}, $fallbackDate );
 
-	my $gameType = $game->{'game_type'};
-	if ( $gameType eq 'R' )
-	{
-		my $gameId = $game->{gameday};
+	my $gameId = $game->{gameday};
 
-		my $shallowGameInfo = {
-			id        => $gameId,
-			time      => $game->{time},
-			away_team => $game->{'away_code'},
-			home_team => $game->{'home_code'},
-			venue_id  => $game->{'venue_id'},
-		};
+	my $shallowGameInfo = {
+		id        => $gameId,
+		time      => $game->{time},
+		away_team => $game->{'away_code'},
+		home_team => $game->{'home_code'},
+		venue_id  => $game->{'venue_id'},
+		game_type => $game->{'game_type'},
+	};
 
-		my $gameRosterUrl = "$dayUrl/gid_$gameId/players.xml";
-		$logger->debug("Getting game roster details from $gameRosterUrl");
+	my $gameRosterUrl = "$dayUrl/gid_$gameId/players.xml";
+	$logger->debug("Getting game roster details from $gameRosterUrl");
 
-		my $gameRosterXml = $this->_get_xml_page($gameRosterUrl);
-		if ($gameRosterXml)
-		{
-			my $gameRosterObj = XMLin( $gameRosterXml, KeyAttr => {}, ForceArray => [ 'team', 'player', 'coach' ] );
-			if ( $gameRosterObj && $gameRosterObj->{team} )
-			{
-				$game->{team} = $gameRosterObj->{team};
+	my $gameRosterXml = $this->_get_xml_page($gameRosterUrl);
+	if ($gameRosterXml) {
+		my $gameRosterObj = XMLin(
+			$gameRosterXml,
+			KeyAttr    => {},
+			ForceArray => [ 'team', 'player', 'coach' ]
+		);
+		if ( $gameRosterObj && $gameRosterObj->{team} ) {
+			$game->{team} = $gameRosterObj->{team};
 
-				foreach my $team ( @{ $gameRosterObj->{team} } )
-				{
-					if ( $team->{'player'} )
-					{
-						foreach my $player ( @{ $team->{'player'} } )
-						{
-							$this->{players}->{ $player->{id} } = {
-								id    => $player->{id},
-								first => $player->{first},
-								last  => $player->{last},
-							};
-						}
+			foreach my $team ( @{ $gameRosterObj->{team} } ) {
+				if ( $team->{'player'} ) {
+					foreach my $player ( @{ $team->{'player'} } ) {
+						$this->{players}->{ $player->{id} } = {
+							id    => $player->{id},
+							first => $player->{first},
+							last  => $player->{last},
+						};
 					}
 				}
 			}
 		}
+	}
 
-		$this->{storage}->save_game($game);
+	$this->{storage}->save_game($game);
 
-		my $inningsUrl = "$dayUrl/gid_$gameId/inning/inning_all.xml";
-		$logger->debug("Getting at-bat details from $inningsUrl");
-		my $inningsXml = $this->_get_xml_page($inningsUrl);
+	my $inningsUrl = "$dayUrl/gid_$gameId/inning/inning_all.xml";
+	$logger->debug("Getting at-bat details from $inningsUrl");
+	my $inningsXml = $this->_get_xml_page($inningsUrl);
 
-		my $hitsUrl = "$dayUrl/gid_$gameId/inning/inning_hit.xml";
-		$logger->debug("Getting hit details from $hitsUrl");
-		my $hitsXml = $this->_get_xml_page($hitsUrl);
+	my $hitsUrl = "$dayUrl/gid_$gameId/inning/inning_hit.xml";
+	$logger->debug("Getting hit details from $hitsUrl");
+	my $hitsXml = $this->_get_xml_page($hitsUrl);
 
-		if ( $inningsXml && $hitsXml )
-		{
-			my $hitsForAtBats = $this->_add_hit_angles( XMLin( $hitsXml, KeyAttr => {}, ForceArray => ['hip'] ) );
-			$this->_save_at_bats(
-				XMLin(
-					$inningsXml,
-					KeyAttr    => {},
-					ForceArray => [ 'inning', 'atbat', 'runner', 'action', 'pitch', 'po' ]
-				),
-				$hitsForAtBats,
-				$shallowGameInfo,
-				$fallbackDate
-			);
+	if ( $inningsXml && $hitsXml ) {
+		my $hitsForAtBats =
+		  $this->_add_hit_angles(
+			XMLin( $hitsXml, KeyAttr => {}, ForceArray => ['hip'] ) );
+		$this->_save_at_bats(
+			XMLin(
+				$inningsXml,
+				KeyAttr    => {},
+				ForceArray =>
+				  [ 'inning', 'atbat', 'runner', 'action', 'pitch', 'po' ]
+			),
+			$hitsForAtBats,
+			$shallowGameInfo,
+			$fallbackDate
+		);
 
-			my $hitsForPitches = $this->_add_hit_angles( XMLin( $hitsXml, KeyAttr => {}, ForceArray => ['hip'] ) );
-			$this->_save_pitches(
-				XMLin( $inningsXml, KeyAttr => {}, ForceArray => [ 'inning', 'atbat', 'runner', 'pitch' ] ),
-				$hitsForPitches, $shallowGameInfo, $fallbackDate );
-		}
+		my $hitsForPitches =
+		  $this->_add_hit_angles(
+			XMLin( $hitsXml, KeyAttr => {}, ForceArray => ['hip'] ) );
+		$this->_save_pitches(
+			XMLin(
+				$inningsXml,
+				KeyAttr    => {},
+				ForceArray => [ 'inning', 'atbat', 'runner', 'pitch' ]
+			),
+			$hitsForPitches,
+			$shallowGameInfo,
+			$fallbackDate
+		);
 	}
 
 }
@@ -289,21 +294,18 @@ sub _save_game_data
 # of the hit. 0 degrees will be straight up the middle of the field. -45 degrees is the left
 # foul pole and 45 degress is the right foul pole.
 ##
-sub _add_hit_angles
-{
+sub _add_hit_angles {
 	my $this    = shift;
 	my $hipList = shift;
 
 	my $hitAdjuster = new Kruser::MLB::HitAdjuster();
 
-	if ( $hipList->{hip} )
-	{
-		for my $hip ( @{ $hipList->{hip} } )
-		{
+	if ( $hipList->{hip} ) {
+		for my $hip ( @{ $hipList->{hip} } ) {
 			$hip->{angle} = $hitAdjuster->get_hit_angle($hip);
 
-			# don't insert distance as they aren't reliable just yet
-			#$hip->{estimatedDistance} = $hitAdjuster->estimate_hit_distance($hip);
+		 # don't insert distance as they aren't reliable just yet
+		 #$hip->{estimatedDistance} = $hitAdjuster->estimate_hit_distance($hip);
 		}
 	}
 	return $hipList;
@@ -323,8 +325,7 @@ sub _add_hit_angles
 # @param fallbackDate - the day to use if we don't have one per pitch
 # @private
 ##
-sub _save_pitches
-{
+sub _save_pitches {
 	my $this            = shift;
 	my $inningsObj      = shift;
 	my $hitBalls        = shift;
@@ -333,14 +334,12 @@ sub _save_pitches
 
 	my @allPitches = ();
 
-	if ($inningsObj)
-	{
-		foreach my $inning ( @{ $inningsObj->{inning} } )
-		{
-			$this->_save_pitches_from_half_inning( $inning, 'top', $hitBalls, $shallowGameInfo, $fallbackDate,
-				\@allPitches );
-			$this->_save_pitches_from_half_inning( $inning, 'bottom', $hitBalls, $shallowGameInfo, $fallbackDate,
-				\@allPitches );
+	if ($inningsObj) {
+		foreach my $inning ( @{ $inningsObj->{inning} } ) {
+			$this->_save_pitches_from_half_inning( $inning, 'top', $hitBalls,
+				$shallowGameInfo, $fallbackDate, \@allPitches );
+			$this->_save_pitches_from_half_inning( $inning, 'bottom', $hitBalls,
+				$shallowGameInfo, $fallbackDate, \@allPitches );
 		}
 	}
 	$this->{storage}->save_pitches( \@allPitches );
@@ -349,8 +348,7 @@ sub _save_pitches
 ##
 # Saves all pitches from a 1/2 inning's at-bats
 #
-sub _save_pitches_from_half_inning
-{
+sub _save_pitches_from_half_inning {
 	my $this             = shift;
 	my $inning           = shift;
 	my $inningSide       = shift;
@@ -359,35 +357,41 @@ sub _save_pitches_from_half_inning
 	my $fallbackDate     = shift;
 	my $aggregatePitches = shift;
 
-	if ( $inning->{$inningSide} && $inning->{$inningSide}->{atbat} )
-	{
+	if ( $inning->{$inningSide} && $inning->{$inningSide}->{atbat} ) {
 		my @atbats = @{ $inning->{$inningSide}->{atbat} };
-		foreach my $atbat (@atbats)
-		{
-			$atbat->{'batter_team'}  = ( $inningSide eq 'top' ) ? $inning->{'away_team'} : $inning->{'home_team'};
-			$atbat->{'pitcher_team'} = ( $inningSide eq 'top' ) ? $inning->{'home_team'} : $inning->{'away_team'};
-			$atbat->{'start_tfs_zulu'} = _convert_to_datetime( $atbat->{'start_tfs_zulu'}, $fallbackDate );
+		foreach my $atbat (@atbats) {
+			$atbat->{'batter_team'} =
+			  ( $inningSide eq 'top' )
+			  ? $inning->{'away_team'}
+			  : $inning->{'home_team'};
+			$atbat->{'pitcher_team'} =
+			  ( $inningSide eq 'top' )
+			  ? $inning->{'home_team'}
+			  : $inning->{'away_team'};
+			$atbat->{'start_tfs_zulu'} =
+			  _convert_to_datetime( $atbat->{'start_tfs_zulu'}, $fallbackDate );
 
 			my $shallowAtBat = dclone($atbat);
 			undef $shallowAtBat->{'pitch'};
 
-			if ( $atbat->{pitch} )
-			{
+			if ( $atbat->{pitch} ) {
 				my @pitches = @{ $atbat->{pitch} };
 
-				my $hip = $this->_get_hip_for_atbat( $hitBalls, $inning->{num}, $atbat->{batter} );
-				if ($hip)
-				{
+				my $hip =
+				  $this->_get_hip_for_atbat( $hitBalls, $inning->{num},
+					$atbat->{batter} );
+				if ($hip) {
 
 					# inject the hit ball on the last pitch of the at-bat
 					$pitches[-1]->{'hip'} = $hip;
 				}
 
-				foreach my $pitch (@pitches)
-				{
-					$pitch->{'tfs_zulu'} = _convert_to_datetime( $pitch->{'tfs_zulu'}, $fallbackDate );
-					$pitch->{'game'}     = $shallowGameInfo;
-					$pitch->{'inning'}   = {
+				foreach my $pitch (@pitches) {
+					$pitch->{'tfs_zulu'} =
+					  _convert_to_datetime( $pitch->{'tfs_zulu'},
+						$fallbackDate );
+					$pitch->{'game'}   = $shallowGameInfo;
+					$pitch->{'inning'} = {
 						type   => $inningSide,
 						number => $inning->{num},
 					};
@@ -411,8 +415,7 @@ sub _save_pitches_from_half_inning
 # @param fallbackDate - the date to use on the atbats if we don't have one from MLB
 # @private
 ##
-sub _save_at_bats
-{
+sub _save_at_bats {
 	my $this            = shift;
 	my $inningsObj      = shift;
 	my $hitsObj         = shift;
@@ -420,20 +423,16 @@ sub _save_at_bats
 	my $fallbackDate    = shift;
 
 	my @allAtBats = ();
-	if ( $inningsObj && $inningsObj->{'inning'} )
-	{
-		foreach my $inning ( @{ $inningsObj->{inning} } )
-		{
-			if ( $inning->{top} && $inning->{top}->{atbat} )
-			{
-				$this->_save_at_bats_for_inning( $inning, $hitsObj, 'top', $shallowGameInfo, \@allAtBats,
-					$fallbackDate );
+	if ( $inningsObj && $inningsObj->{'inning'} ) {
+		foreach my $inning ( @{ $inningsObj->{inning} } ) {
+			if ( $inning->{top} && $inning->{top}->{atbat} ) {
+				$this->_save_at_bats_for_inning( $inning, $hitsObj, 'top',
+					$shallowGameInfo, \@allAtBats, $fallbackDate );
 
 			}
-			if ( $inning->{bottom} && $inning->{bottom}->{atbat} )
-			{
-				$this->_save_at_bats_for_inning( $inning, $hitsObj, 'bottom', $shallowGameInfo, \@allAtBats,
-					$fallbackDate );
+			if ( $inning->{bottom} && $inning->{bottom}->{atbat} ) {
+				$this->_save_at_bats_for_inning( $inning, $hitsObj, 'bottom',
+					$shallowGameInfo, \@allAtBats, $fallbackDate );
 			}
 		}
 	}
@@ -446,16 +445,13 @@ sub _save_at_bats
 # Note this doesn't go against the database, so it only will find players listed
 # on the scorecards on the days selected.
 ##
-sub _find_player
-{
+sub _find_player {
 	my $this      = shift;
 	my $firstName = shift;
 	my $lastName  = shift;
 
-	for my $player ( values %{ $this->{players} } )
-	{
-		if ( $player->{last} eq $lastName && $player->{first} eq $firstName )
-		{
+	for my $player ( values %{ $this->{players} } ) {
+		if ( $player->{last} eq $lastName && $player->{first} eq $firstName ) {
 			return $player->{id};
 		}
 	}
@@ -481,8 +477,7 @@ sub _find_player
 # @param aggregateAtBats - an array for all of the at-bats that the caller will be aggregating, presumedly for storage
 # @param fallbackDate
 ##
-sub _save_at_bats_for_inning
-{
+sub _save_at_bats_for_inning {
 	my $this            = shift;
 	my $inning          = shift;
 	my $hitBalls        = shift;
@@ -492,57 +487,56 @@ sub _save_at_bats_for_inning
 	my $fallbackDate    = shift;
 
 	my @atbats = @{ $inning->{$inningSide}->{'atbat'} };
-	foreach my $atbat (@atbats)
-	{
+	foreach my $atbat (@atbats) {
 		my $atBatEvent = $atbat->{'event'};
 
-		$atbat->{'batter_team'}  = $inningSide eq 'top' ? $inning->{'away_team'} : $inning->{'home_team'};
-		$atbat->{'pitcher_team'} = $inningSide eq 'top' ? $inning->{'home_team'} : $inning->{'away_team'};
-		$atbat->{'inning'}       = {
+		$atbat->{'batter_team'} =
+		    $inningSide eq 'top'
+		  ? $inning->{'away_team'}
+		  : $inning->{'home_team'};
+		$atbat->{'pitcher_team'} =
+		    $inningSide eq 'top'
+		  ? $inning->{'home_team'}
+		  : $inning->{'away_team'};
+		$atbat->{'inning'} = {
 			type   => $inningSide,
 			number => $inning->{num},
 		};
 		$atbat->{'game'}           = $shallowGameInfo,;
-		$atbat->{'start_tfs_zulu'} = _convert_to_datetime( $atbat->{'start_tfs_zulu'}, $fallbackDate );
+		$atbat->{'start_tfs_zulu'} =
+		  _convert_to_datetime( $atbat->{'start_tfs_zulu'}, $fallbackDate );
 
-		my $hip = $this->_get_hip_for_atbat( $hitBalls, $inning->{num}, $atbat->{batter} );
-		if ($hip)
-		{
+		my $hip =
+		  $this->_get_hip_for_atbat( $hitBalls, $inning->{num},
+			$atbat->{batter} );
+		if ($hip) {
 			$atbat->{'hip'} = $hip;
 
 			my $trajectory = 'grounder';
-			if ( $atbat->{'des'} =~ /pop up|pops out/i )
-			{
+			if ( $atbat->{'des'} =~ /pop up|pops out/i ) {
 				$trajectory = 'popup';
 			}
-			elsif ( $atbat->{'des'} =~ /line drive|lines out/i )
-			{
+			elsif ( $atbat->{'des'} =~ /line drive|lines out/i ) {
 				$trajectory = 'liner';
 			}
-			elsif ( $atbat->{'des'} =~ /fly ball|flies out/i )
-			{
+			elsif ( $atbat->{'des'} =~ /fly ball|flies out/i ) {
 				$trajectory = 'flyball';
 			}
 			$atbat->{'hip'}->{'trajectory'} = $trajectory;
 		}
 
 		my $runnersPotentialBases = 0;
-		if ( $atbat->{'pitch'} )
-		{
+		if ( $atbat->{'pitch'} ) {
 			my @pitches   = @{ $atbat->{'pitch'} };
 			my $lastPitch = $pitches[-1];
-			if ($lastPitch)
-			{
-				if ( $lastPitch->{'on_1b'} )
-				{
+			if ($lastPitch) {
+				if ( $lastPitch->{'on_1b'} ) {
 					$runnersPotentialBases += 3;
 				}
-				if ( $lastPitch->{'on_2b'} )
-				{
+				if ( $lastPitch->{'on_2b'} ) {
 					$runnersPotentialBases += 2;
 				}
-				if ( $lastPitch->{'on_3b'} )
-				{
+				if ( $lastPitch->{'on_3b'} ) {
 					$runnersPotentialBases += 1;
 				}
 			}
@@ -550,11 +544,9 @@ sub _save_at_bats_for_inning
 		$atbat->{'runnersPotentialBases'} = $runnersPotentialBases;
 
 		my $runnersMovedBases = 0;
-		if ( $atbat->{'runner'} )
-		{
+		if ( $atbat->{'runner'} ) {
 			my @runners = @{ $atbat->{'runner'} };
-			foreach my $runner (@runners)
-			{
+			foreach my $runner (@runners) {
 				$runnersMovedBases += _get_runners_moved($runner);
 			}
 		}
@@ -575,8 +567,7 @@ sub _save_at_bats_for_inning
 # @returns a hip instance or undefined if it there wasn't a match.
 # @private
 ##
-sub _get_hip_for_atbat
-{
+sub _get_hip_for_atbat {
 	my $this     = shift;
 	my $hitBalls = shift;
 	my $inning   = shift;
@@ -588,18 +579,18 @@ sub _get_hip_for_atbat
 	my $hipMatch      = undef;
 	my $hipMatchIndex = undef;
 
-	for ( my $i = 0 ; $i < $hipCount ; $i++ )
-	{
+	for ( my $i = 0 ; $i < $hipCount ; $i++ ) {
 		my $hip = @hips[$i];
-		if ( $hip->{'inning'} == $inning && $hip->{'batter'} == $batterId && $hip->{'des'} ne 'Error' )
+		if (   $hip->{'inning'} == $inning
+			&& $hip->{'batter'} == $batterId
+			&& $hip->{'des'} ne 'Error' )
 		{
 			$hipMatch      = $hip;
 			$hipMatchIndex = $i;
 			last;
 		}
 	}
-	if ( $hipMatch && $hipMatchIndex >= 0 )
-	{
+	if ( $hipMatch && $hipMatchIndex >= 0 ) {
 		splice( @{ $hitBalls->{'hip'} }, $hipMatchIndex, 1 );
 	}
 	return $hipMatch;
@@ -609,8 +600,7 @@ sub _get_hip_for_atbat
 # Get a list of the game folders for a day
 # @private
 ##
-sub _get_games_for_day
-{
+sub _get_games_for_day {
 	my $this   = shift;
 	my $dayUrl = shift;
 
@@ -618,13 +608,11 @@ sub _get_games_for_day
 	$logger->debug("Getting gameday lists from $url");
 	my $gamesXml = $this->_get_xml_page($url);
 	my $gamesObj = XMLin( $gamesXml, KeyAttr => {}, ForceArray => ['game'] );
-	if ( $gamesObj && $gamesObj->{game} )
-	{
+	if ( $gamesObj && $gamesObj->{game} ) {
 		$this->_cleanup_games( \@{ $gamesObj->{game} } );
 		return @{ $gamesObj->{game} };
 	}
-	else
-	{
+	else {
 		return ();
 	}
 }
@@ -635,15 +623,12 @@ sub _get_games_for_day
 # @param {Object[]} games - the array of games
 # @private
 ##
-sub _cleanup_games
-{
+sub _cleanup_games {
 	my $this  = shift;
 	my $games = shift;
 
-	foreach my $game ( @{$games} )
-	{
-		if ( $game->{game_media} )
-		{
+	foreach my $game ( @{$games} ) {
+		if ( $game->{game_media} ) {
 			undef( $game->{game_media} );
 		}
 	}
@@ -656,19 +641,16 @@ sub _cleanup_games
 # @param {string} url
 # @private
 ##
-sub _get_xml_page
-{
+sub _get_xml_page {
 	my $this = shift;
 	my $url  = shift;
 
 	my $response = $browser->get($url);
-	if ( $response->is_success )
-	{
+	if ( $response->is_success ) {
 		my $xml = $response->content();
 		return $xml;
 	}
-	else
-	{
+	else {
 		$logger->warn("No content found at $url");
 		return undef;
 	}
@@ -682,8 +664,7 @@ sub _get_xml_page
 # @static
 # @private
 ##
-sub _get_runners_moved
-{
+sub _get_runners_moved {
 	my $runner = shift;
 
 	my $endInt  = 0;
@@ -692,39 +673,30 @@ sub _get_runners_moved
 	my $startInt  = 0;
 	my $startBase = $runner->{'start'};
 
-	if ($startBase)
-	{
-		if ( $startBase eq '1B' )
-		{
+	if ($startBase) {
+		if ( $startBase eq '1B' ) {
 			$startInt = 1;
 		}
-		elsif ( $startBase eq '2B' )
-		{
+		elsif ( $startBase eq '2B' ) {
 			$startInt = 2;
 		}
-		elsif ( $startBase eq '3B' )
-		{
+		elsif ( $startBase eq '3B' ) {
 			$startInt = 3;
 		}
 
-		if ($endBase eq '' && $runner->{'score'} eq 'T')
-		{
+		if ( $endBase eq '' && $runner->{'score'} eq 'T' ) {
 			$endInt = 4;
 		}
-		elsif ($endBase eq '')
-		{
+		elsif ( $endBase eq '' ) {
 			$endInt = $startInt;
 		}
-		elsif ($endBase eq '3B')
-		{
+		elsif ( $endBase eq '3B' ) {
 			$endInt = 3;
 		}
-		elsif ($endBase eq '2B')
-		{
+		elsif ( $endBase eq '2B' ) {
 			$endInt = 2;
 		}
-		elsif ($endBase eq '1B')
-		{
+		elsif ( $endBase eq '1B' ) {
 			$endInt = 1;
 		}
 	}
@@ -738,19 +710,20 @@ sub _get_runners_moved
 # @static
 # @private
 ##
-sub _convert_to_datetime
-{
+sub _convert_to_datetime {
 	my $datetimeString = shift;
 	my $fallbackDate   = shift;
 	eval {
-		my $conversion = DateTime->from_epoch( epoch => str2time($datetimeString) );
+		my $conversion =
+		  DateTime->from_epoch( epoch => str2time($datetimeString) );
 		return $conversion;
 	  }
-	  or do
-	{
-		$logger->error("The string '$datetimeString' can't be converted to a DateTime object. Using $fallbackDate");
+	  or do {
+		$logger->error(
+"The string '$datetimeString' can't be converted to a DateTime object. Using $fallbackDate"
+		);
 		return $fallbackDate;
-	};
+	  };
 }
 
 1;
