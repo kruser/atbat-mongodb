@@ -257,9 +257,11 @@ sub _save_game_data {
 	my $hitsXml = $this->_get_xml_page($hitsUrl);
 
 	if ( $inningsXml && $hitsXml ) {
+
 		my $hitsForAtBats =
 		  $this->_add_hit_angles(
 			XMLin( $hitsXml, KeyAttr => {}, ForceArray => ['hip'] ) );
+
 		$this->_save_at_bats(
 			XMLin(
 				$inningsXml,
@@ -275,6 +277,7 @@ sub _save_game_data {
 		my $hitsForPitches =
 		  $this->_add_hit_angles(
 			XMLin( $hitsXml, KeyAttr => {}, ForceArray => ['hip'] ) );
+
 		$this->_save_pitches(
 			XMLin(
 				$inningsXml,
@@ -358,6 +361,7 @@ sub _save_pitches_from_half_inning {
 	my $aggregatePitches = shift;
 
 	if ( $inning->{$inningSide} && $inning->{$inningSide}->{atbat} ) {
+		my $startingOuts = 0;
 		my @atbats = @{ $inning->{$inningSide}->{atbat} };
 		foreach my $atbat (@atbats) {
 			$atbat->{'batter_team'} =
@@ -370,6 +374,8 @@ sub _save_pitches_from_half_inning {
 			  : $inning->{'away_team'};
 			$atbat->{'start_tfs_zulu'} =
 			  _convert_to_datetime( $atbat->{'start_tfs_zulu'}, $fallbackDate );
+			$atbat->{'o_start'} = $startingOuts;
+			$startingOuts = $atbat->{'o'};
 
 			my $shallowAtBat = dclone($atbat);
 			undef $shallowAtBat->{'pitch'};
@@ -486,7 +492,8 @@ sub _save_at_bats_for_inning {
 	my $aggregateAtBats = shift;
 	my $fallbackDate    = shift;
 
-	my @atbats = @{ $inning->{$inningSide}->{'atbat'} };
+	my $startingOuts = 0;
+	my @atbats       = @{ $inning->{$inningSide}->{'atbat'} };
 	foreach my $atbat (@atbats) {
 		my $atBatEvent = $atbat->{'event'};
 
@@ -502,6 +509,7 @@ sub _save_at_bats_for_inning {
 			type   => $inningSide,
 			number => $inning->{num},
 		};
+		$atbat->{'o_start'}        = $startingOuts;
 		$atbat->{'game'}           = $shallowGameInfo,;
 		$atbat->{'start_tfs_zulu'} =
 		  _convert_to_datetime( $atbat->{'start_tfs_zulu'}, $fallbackDate );
@@ -552,6 +560,7 @@ sub _save_at_bats_for_inning {
 		}
 		$atbat->{'runnersMovedBases'} = $runnersMovedBases;
 		push( @{$aggregateAtBats}, $atbat );
+		$startingOuts = $atbat->{'o'};
 	}
 }
 
