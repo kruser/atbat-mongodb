@@ -362,7 +362,7 @@ sub _save_pitches_from_half_inning {
 
 	if ( $inning->{$inningSide} && $inning->{$inningSide}->{atbat} ) {
 		my $startingOuts = 0;
-		my @atbats = @{ $inning->{$inningSide}->{atbat} };
+		my @atbats       = @{ $inning->{$inningSide}->{atbat} };
 		foreach my $atbat (@atbats) {
 			$atbat->{'batter_team'} =
 			  ( $inningSide eq 'top' )
@@ -616,14 +616,14 @@ sub _get_games_for_day {
 	my $url = "$dayUrl/epg.xml";
 	$logger->debug("Getting gameday lists from $url");
 	my $gamesXml = $this->_get_xml_page($url);
-	my $gamesObj = XMLin( $gamesXml, KeyAttr => {}, ForceArray => ['game'] );
-	if ( $gamesObj && $gamesObj->{game} ) {
-		$this->_cleanup_games( \@{ $gamesObj->{game} } );
-		return @{ $gamesObj->{game} };
+	if ($gamesXml) {
+		my $gamesObj = XMLin( $gamesXml, KeyAttr => {}, ForceArray => ['game'] );
+		if ( $gamesObj && $gamesObj->{game} ) {
+			$this->_cleanup_games( \@{ $gamesObj->{game} } );
+			return @{ $gamesObj->{game} };
+		}
 	}
-	else {
-		return ();
-	}
+	return ();
 }
 
 ##
