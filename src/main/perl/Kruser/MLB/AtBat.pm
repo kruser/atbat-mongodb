@@ -113,7 +113,7 @@ sub _retrieve_month {
 	my $year  = shift;
 	my $month = shift;
 	$logger->info("Retrieving data for the month $year-$month.");
-	if ( $month > 2 && $month < 12 ) {
+	if ( $month > 1 && $month < 12 ) {
 		for ( my $day = 1 ; $day <= 31 && $this->{'beforetoday'} ; $day++ ) {
 			$this->_retrieve_day( $year, $month, $day );
 		}
