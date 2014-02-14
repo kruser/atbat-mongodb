@@ -137,7 +137,9 @@ http://docs.mongodb.org/manual/core/indexes/
 For the http://PitchFX.org site I have started with these indexes. You can't go wrong with these if you don't care about the slight storage overhead.
     
     db.players.ensureIndex({'first':1,'last':1});
+    db.pitches.ensureIndex({'atbat.pitcher':1,'tfs_zulu':1});
     db.pitches.ensureIndex({'atbat.pitcher':1});
+    db.pitches.ensureIndex({'atbat.batter':1,'tfs_zulu':1});
     db.pitches.ensureIndex({'atbat.batter':1});
     db.pitches.ensureIndex({'atbat.p_throws':1});
     db.pitches.ensureIndex({'atbat.stand':1});
@@ -148,6 +150,8 @@ For the http://PitchFX.org site I have started with these indexes. You can't go 
     db.pitches.ensureIndex({'on_2b':1});
     db.pitches.ensureIndex({'on_3b':1});
     db.pitches.ensureIndex({'tfs_zulu':1});
+    db.atbats.ensureIndex({'pitcher':1,'start_tfs_zulu':1});
+    db.atbats.ensureIndex({'batter':1,'start_tfs_zulu':1});
     db.atbats.ensureIndex({'pitcher':1});
     db.atbats.ensureIndex({'batter':1});
     db.atbats.ensureIndex({'p_throws':1});
