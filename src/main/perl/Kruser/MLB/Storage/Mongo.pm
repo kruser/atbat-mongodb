@@ -23,8 +23,7 @@ my $mongoDB;
 # construct an instance
 # TODO: use the dbHost property
 ##
-sub new
-{
+sub new {
 	my ( $proto, %params ) = @_;
 	my $package = ref($proto) || $proto;
 	my $this = {
@@ -32,13 +31,12 @@ sub new
 		dbHost => 'localhost'
 	};
 
-	foreach my $key ( keys %params )
-	{
+	foreach my $key ( keys %params ) {
 		$this->{$key} = $params{$key};
 	}
 
 	$mongoClient = MongoDB::MongoClient->new;
-	$mongoDB = $mongoClient->get_database( $this->{dbName} );
+	$mongoDB     = $mongoClient->get_database( $this->{dbName} );
 
 	bless( $this, $package );
 	return $this;
@@ -49,8 +47,7 @@ sub new
 #
 # @param game - the game object
 ##
-sub save_game
-{
+sub save_game {
 	my $this           = shift;
 	my $game           = shift;
 	my $collectionName = 'games';
@@ -64,21 +61,20 @@ sub save_game
 #
 # @param {Object[]} atbats
 ##
-sub save_at_bats
-{
+sub save_at_bats {
 	my $this   = shift;
 	my $atbats = shift;
 
 	my $collectionName = 'atbats';
 
 	my $length = @{$atbats};
-	if ($length)
-	{
+	if ($length) {
 		my $collection = $mongoDB->get_collection($collectionName);
 		my @ids        = $collection->batch_insert( \@{$atbats} );
 
 		my $length = @ids;
-		$logger->debug("Saved $length at bats to the '$collectionName' collection");
+		$logger->debug(
+			"Saved $length at bats to the '$collectionName' collection");
 	}
 }
 ##
@@ -86,21 +82,20 @@ sub save_at_bats
 #
 # @param {Object[]} pitches
 ##
-sub save_pitches
-{
+sub save_pitches {
 	my $this    = shift;
 	my $pitches = shift;
 
 	my $collectionName = 'pitches';
 
 	my $length = @{$pitches};
-	if ($length)
-	{
+	if ($length) {
 		my $collection = $mongoDB->get_collection($collectionName);
 		my @ids        = $collection->batch_insert( \@{$pitches} );
 
 		my $length = @ids;
-		$logger->debug("Saved $length pitches to the '$collectionName' collection");
+		$logger->debug(
+			"Saved $length pitches to the '$collectionName' collection");
 	}
 }
 
@@ -111,31 +106,36 @@ sub save_pitches
 #
 # @param {Object%} players - key is the MLB ID of the player
 ##
-sub save_players
-{
+sub save_players {
 	my $this           = shift;
 	my $players        = shift;
 	my $collectionName = 'players';
 
-	my $collection    = $mongoDB->get_collection($collectionName);
-	my @playersToSave = ();
+	my $collection = $mongoDB->get_collection($collectionName);
+	my @newPlayers = ();
+	my $updatedPlayers = 0;
 
-	foreach my $playerId ( keys %$players )
-	{
+	foreach my $playerId ( keys %$players ) {
 		my $result = $collection->find_one( { id => $playerId } );
-		if ( !$result )
-		{
-			push( @playersToSave, $players->{$playerId} );
+		if ($result) {
+			$updatedPlayers++;
+			my $player = $players->{$playerId};
+			$collection->update( { id => $playerId },
+				{ '$set' => { 'lastSeen' => $player->{'lastSeen'} } } );
+		}
+		else {
+			push( @newPlayers, $players->{$playerId} );
 		}
 	}
 
-	my $length = @playersToSave;
-	if ($length)
-	{
-		my @ids = $collection->batch_insert( \@playersToSave );
+	$logger->debug("Updated $updatedPlayers players with new lastSeen dates");
+	
+	my $length = @newPlayers;
+	if ($length) {
+		my @ids = $collection->batch_insert( \@newPlayers );
 
 		my $length = @ids;
-		$logger->debug("Saved $length players to the '$collectionName' collection");
+		$logger->debug("Saved $length new players to the '$collectionName' collection");
 	}
 }
 
@@ -148,19 +148,17 @@ sub save_players
 #
 # @returns {DateTime} date of the last sync
 ##
-sub get_last_sync_date
-{
+sub get_last_sync_date {
 	my $this = shift;
 
 	my $gamesCollection = $mongoDB->get_collection('games');
-	my $lastGame = $gamesCollection->find()->sort( { 'source_day' => -1 } )->limit(1);
-	if ( $lastGame->count() > 0 )
-	{
+	my $lastGame        =
+	  $gamesCollection->find()->sort( { 'source_day' => -1 } )->limit(1);
+	if ( $lastGame->count() > 0 ) {
 		my $latestGame = $lastGame->next();
 		return $latestGame->{'source_day'};
 	}
-	else
-	{
+	else {
 		return 0;
 	}
 }
@@ -174,14 +172,13 @@ sub get_last_sync_date
 # @param {string} day in YYYY-MM-DD format
 # @returns {boolean} true if we already have persisted data for this day
 ##
-sub already_have_day
-{
+sub already_have_day {
 	my $this      = shift;
 	my $dayString = shift;
 
 	my $gamesCollection = $mongoDB->get_collection('games');
-	my $gamesForDay     = $gamesCollection->find( { 'source_day' => $dayString } );
-	my $count           = $gamesForDay->count();
+	my $gamesForDay = $gamesCollection->find( { 'source_day' => $dayString } );
+	my $count       = $gamesForDay->count();
 	return $count;
 }
 1;

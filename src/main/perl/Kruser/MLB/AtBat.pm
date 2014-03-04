@@ -236,9 +236,10 @@ sub _save_game_data {
 				if ( $team->{'player'} ) {
 					foreach my $player ( @{ $team->{'player'} } ) {
 						$this->{players}->{ $player->{id} } = {
-							id    => $player->{id},
-							first => $player->{first},
-							last  => $player->{last},
+							id       => $player->{id},
+							first    => $player->{first},
+							last     => $player->{last},
+							lastSeen => $game->{start},
 						};
 					}
 				}
@@ -446,25 +447,6 @@ sub _save_at_bats {
 }
 
 ##
-# Finds players that have been accumulated via the games retrieved.
-#
-# Note this doesn't go against the database, so it only will find players listed
-# on the scorecards on the days selected.
-##
-sub _find_player {
-	my $this      = shift;
-	my $firstName = shift;
-	my $lastName  = shift;
-
-	for my $player ( values %{ $this->{players} } ) {
-		if ( $player->{last} eq $lastName && $player->{first} eq $firstName ) {
-			return $player->{id};
-		}
-	}
-	return undef;
-}
-
-##
 # Handles persisting all at bats in an array that represents
 # the top or bottom half of an inning.
 #
@@ -617,7 +599,8 @@ sub _get_games_for_day {
 	$logger->debug("Getting gameday lists from $url");
 	my $gamesXml = $this->_get_xml_page($url);
 	if ($gamesXml) {
-		my $gamesObj = XMLin( $gamesXml, KeyAttr => {}, ForceArray => ['game'] );
+		my $gamesObj =
+		  XMLin( $gamesXml, KeyAttr => {}, ForceArray => ['game'] );
 		if ( $gamesObj && $gamesObj->{game} ) {
 			$this->_cleanup_games( \@{ $gamesObj->{game} } );
 			return @{ $gamesObj->{game} };
