@@ -16,8 +16,7 @@ my $PI = atan2 0, -1;
 ##
 # Construct an instance
 ##
-sub new
-{
+sub new {
 	my ( $proto, %params ) = @_;
 	my $package = ref($proto) || $proto;
 
@@ -27,8 +26,7 @@ sub new
 		distanceMultiplier => 2.3142,
 	};
 
-	foreach my $key ( keys %params )
-	{
+	foreach my $key ( keys %params ) {
 		$this->{$key} = $params{$key};
 	}
 
@@ -47,8 +45,7 @@ sub new
 # @param hit - an instance of the hip - see here for an example: http://gd2.mlb.com/components/game/mlb/year_2013/month_07/day_25/gid_2013_07_25_minmlb_seamlb_1/inning/inning_hit.xml
 # @returns angle
 ##
-sub get_hit_angle
-{
+sub get_hit_angle {
 	my $this = shift;
 	my $hit  = shift;
 
@@ -72,8 +69,7 @@ sub get_hit_angle
 # @param hit - an instance of the hip - see here for an example: http://gd2.mlb.com/components/game/mlb/year_2013/month_07/day_25/gid_2013_07_25_minmlb_seamlb_1/inning/inning_hit.xml
 # @returns angle
 ##
-sub estimate_hit_distance
-{
+sub estimate_hit_distance {
 	my $this = shift;
 	my $hit  = shift;
 
@@ -83,11 +79,11 @@ sub estimate_hit_distance
 	my $deltaX = abs( $this->{homeX} - $x );
 	my $deltaY = abs( $this->{homeY} - $y );
 
-	my $sideZ = sqrt( ( $deltaX**2 ) + ( $deltaY**2 ) );
+	my $sideZ    = sqrt( ( $deltaX**2 ) + ( $deltaY**2 ) );
 	my $distance = $sideZ * $this->{distanceMultiplier};
-	my $rounded = sprintf( "%.2f", $distance );
-	
-	return $rounded
+	my $rounded  = sprintf( "%.2f", $distance );
+
+	return $rounded;
 }
 
 1;

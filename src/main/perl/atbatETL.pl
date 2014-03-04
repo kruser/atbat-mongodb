@@ -42,11 +42,9 @@ $atbat->initiate_sync();
 ##
 # loads the properties from the script configuration file
 ##
-sub load_properties()
-{
+sub load_properties() {
 	my $configFile = $path . '/atbatETL.properties';
-	if ( !-e $configFile )
-	{
+	if ( !-e $configFile ) {
 		$logger->error("The config file '$configFile' does not exist");
 	}
 
@@ -59,8 +57,7 @@ sub load_properties()
 ##
 # load all of the startup options
 ##
-sub load_options()
-{
+sub load_options() {
 	my $help;
 	GetOptions(
 		"h"       => \$help,
@@ -70,8 +67,7 @@ sub load_options()
 		"day=i"   => \$day,
 	);
 
-	if ($help)
-	{
+	if ($help) {
 		usage();
 	}
 }
@@ -79,14 +75,16 @@ sub load_options()
 ##
 # Prints out some help
 ##
-sub usage
-{
-	print "With no args, this program will sync from the last date the program was run\n";
-	print "When you initially run it, you should sync an entire month or year to seed your database.\n\n";
+sub usage {
+	print
+"With no args, this program will sync from the last date the program was run\n";
+	print
+"When you initially run it, you should sync an entire month or year to seed your database.\n\n";
 	print "Optional args\n";
 	print " --year=YYYY (the year to sync with)\n";
 	print " --month=MM (the month to sync with, must be used with --year)\n";
-	print " --day=DD (the day to sync with, must be used with --year and --month)\n";
+	print
+" --day=DD (the day to sync with, must be used with --year and --month)\n";
 	print "\nFor example, this will sync June 2013\n";
 	print "\tperl atbatETL.pl --year=2013 --month=06\n";
 	exit;
