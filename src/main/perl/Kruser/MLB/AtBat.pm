@@ -388,6 +388,7 @@ sub _save_pitches_from_half_inning {
 				  $this->_get_hip_for_atbat( $hitBalls, $inning->{num},
 					$atbat->{batter} );
 				if ($hip) {
+					$hip->{'trajectory'} = _get_trajectory( $atbat->{'des'} );
 
 					# inject the hit ball on the last pitch of the at-bat
 					$pitches[-1]->{'hip'} = $hip;
@@ -409,6 +410,27 @@ sub _save_pitches_from_half_inning {
 		}
 	}
 
+}
+
+##
+# For a hit ball description, get an trajectory
+# from a known list
+#
+# @param description - the string description of the hit ball
+# @returns one of (grounder|flyball|popup|liner)
+sub _get_trajectory {
+	my $hitDescription = shift;
+
+	if ( $hitDescription =~ /pop up|pops out/i ) {
+		return 'popup';
+	}
+	elsif ( $hitDescription =~ /line drive|lines out/i ) {
+		return 'liner';
+	}
+	elsif ( $hitDescription =~ /fly ball|flies out/i ) {
+		return 'flyball';
+	}
+	return 'grounder';
 }
 
 ##
@@ -501,18 +523,8 @@ sub _save_at_bats_for_inning {
 			$atbat->{batter} );
 		if ($hip) {
 			$atbat->{'hip'} = $hip;
-
-			my $trajectory = 'grounder';
-			if ( $atbat->{'des'} =~ /pop up|pops out/i ) {
-				$trajectory = 'popup';
-			}
-			elsif ( $atbat->{'des'} =~ /line drive|lines out/i ) {
-				$trajectory = 'liner';
-			}
-			elsif ( $atbat->{'des'} =~ /fly ball|flies out/i ) {
-				$trajectory = 'flyball';
-			}
-			$atbat->{'hip'}->{'trajectory'} = $trajectory;
+			$atbat->{'hip'}->{'trajectory'} =
+			  _get_trajectory( $atbat->{'des'} );
 		}
 
 		my $runnersPotentialBases = 0;
